@@ -1,0 +1,1 @@
+docker exec -w / sql-server bash -c "./exec.sh create-database-source.sql"
