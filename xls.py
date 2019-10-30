@@ -19,7 +19,13 @@ class Books(list):
     ColumnsType = [str, nstr, nstr, nstr, float]
     Type = TableCollection.create_table('Book', Columns)
     CreateStatement = """
-    create table book ( id varchar(20), name nvarchar(80), publish nvarchar(30), author nvarchar(15), price decimal(10, 3));
+    create table book (
+        id varchar(20) not null primary key,
+        name nvarchar(80) not null,
+        publish nvarchar(30),
+        author nvarchar(15),
+        price decimal(10, 3)
+    );
     """
 
     def __init__(self, n, l):
@@ -34,7 +40,11 @@ class TeacherTypes(list):
     ColumnsType = [int, nstr]
     Type = TableCollection.create_table('TeacherType', Columns)
     CreateStatement = """
-    create table teacher_type ( id smallint, t_type nvarchar(15) );
+    create table teacher_type (
+        id smallint not null,
+        t_type nvarchar(15) not null,
+        primary key(id, t_type)
+    );
     """
 
     def __init__(self, n, l):
@@ -49,7 +59,14 @@ class Courses(list):
     ColumnsType = [str, nstr, str, int, int, int]
     Type = TableCollection.create_table('Course', Columns)
     CreateStatement = """
-    create table course ( id varchar(20), name nvarchar(80), book_id varchar(20), total_hour int, week_hour int, credit int );
+    create table course (
+        id varchar(20) not null primary key,
+        name nvarchar(80),
+        book_id varchar(20),
+        total_hour int,
+        week_hour int,
+        credit int
+    );
     """
 
     def __init__(self, n, l):
@@ -64,7 +81,12 @@ class Classes(list):
     ColumnsType = [str, nstr, nstr, str]
     Type = TableCollection.create_table('Class', Columns)
     CreateStatement = """
-    create table class ( id varchar(20), head_teacher nvarchar(15), address nvarchar(120), dept_id varchar(20) );
+    create table class (
+        id varchar(20) not null primary key,
+        head_teacher nvarchar(15),
+        address nvarchar(120),
+        dept_id varchar(20)
+    );
     """
 
     def __init__(self, n, l):
@@ -79,7 +101,11 @@ class ClassCourses(list):
     ColumnsType = [str, str]
     Type = TableCollection.create_table('ClassCourse', Columns)
     CreateStatement = """
-    create table class_course ( class_id varchar(20), course_id varchar(20) );
+    create table class_course (
+        class_id varchar(20) not null,
+        course_id varchar(20) not null,
+        primary key(class_id, course_id)
+    );
     """
 
     def __init__(self, n, l):
@@ -94,7 +120,12 @@ class Departments(list):
     ColumnsType = [str, nstr, nstr, int]
     Type = TableCollection.create_table('Department', Columns)
     CreateStatement = """
-    create table department ( id varchar(20), name nvarchar(15), leader nvarchar(15), teacher_count int);
+    create table department (
+        id varchar(20) not null primary key,
+        name nvarchar(15) not null,
+        leader nvarchar(15),
+        teacher_count int,
+    );
     """
 
     def __init__(self, n, l):
@@ -109,7 +140,15 @@ class Students(list):
     ColumnsType = [str, nstr, str, nstr, datetime_str, datetime_str, nstr]
     Type = TableCollection.create_table('Student', Columns)
     CreateStatement = """
-    create table student ( id varchar(20), name nvarchar(15), class_id varchar(20), gender nvarchar(2), birth datetime, created_at datetime, address nvarchar(120));
+    create table student (
+        id varchar(20) not null primary key,
+        name nvarchar(15),
+        class_id varchar(20),
+        gender nvarchar(2),
+        birth datetime,
+        created_at datetime default CURRENT_TIMESTAMP,
+        address nvarchar(120),
+    );
     """
 
     def __init__(self, n, l):
@@ -124,7 +163,14 @@ class StudentCourses(list):
     ColumnsType = [str, str, int, int, int, str]
     Type = TableCollection.create_table('StudentCourse', Columns)
     CreateStatement = """
-    create table student_course ( course_id varchar(20), student_id varchar(20), score int, credit int, sem smallint, year varchar(20));
+    create table student_course (
+        course_id varchar(20) not null,
+        student_id varchar(20) not null,
+        score int,
+        credit int,
+        sem smallint,
+        year varchar(20)
+    );
     """
 
     def __init__(self, n, l):
@@ -139,7 +185,18 @@ class Teachers(list):
     ColumnsType = [str, nstr, nstr, datetime_str, str, nstr, str, nstr, str, int]
     Type = TableCollection.create_table('Teacher', Columns)
     CreateStatement = """
-    create table teacher ( id varchar(20), name nvarchar(20), gender nvarchar(2), birth datetime, dept_id varchar(20), prof nvarchar(5), phone varchar(15), address nvarchar(120), post_code varchar(10), cat smallint );
+    create table teacher (
+        id varchar(20) not null primary key,
+        name nvarchar(20),
+        gender nvarchar(2),
+        birth datetime,
+        dept_id varchar(20),
+        prof nvarchar(5),
+        phone varchar(15),
+        address nvarchar(120),
+        post_code varchar(10),
+        cat smallint
+    );
     """
 
     def __init__(self, n, l):
@@ -154,7 +211,17 @@ class TeacherCourses(list):
     ColumnsType = [str, str, str, int, str, int, nstr, str]
     Type = TableCollection.create_table('TeacherCourse', Columns)
     CreateStatement = """
-    create table teacher_course ( teacher_id varchar(20), course_id varchar(20), class_id varchar(20), sem smallint, year varchar(20), id bigint, address nvarchar(20), book_id varchar(20) );
+    create table teacher_course (
+        teacher_id varchar(20) not null,
+        course_id varchar(20) not null,
+        class_id varchar(20),
+        sem smallint,
+        year varchar(20),
+        id bigint not null,
+        address nvarchar(20),
+        book_id varchar(20),
+        primary key(teacher_id, course_id, class_id)
+    );
     """
 
     def __init__(self, n, l):

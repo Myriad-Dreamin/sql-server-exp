@@ -1,16 +1,7 @@
-from prettytable import from_db_cursor
+
+
+from sql_func import wk
 from sql_server import SqlServer
-
-
-def wk(db):
-    def res(statement):
-        print(statement)
-        cursor = db.query_cursor(statement)
-        while True:
-            print(from_db_cursor(cursor))
-            if not cursor.nextset():
-                break
-    return res
 
 
 with SqlServer("student_source") as server:

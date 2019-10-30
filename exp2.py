@@ -1,6 +1,6 @@
 
-from tables_results import TableCollection
 from sql_server import SqlServer
+from sql_func import wk
 import xls
 
 with SqlServer("student_source") as server:
@@ -60,3 +60,38 @@ with SqlServer("student_source") as server:
 
     print(server.dump_table(xls.get_teacher_course()))
     print(list(server.select(xls.TeacherCourses)))
+
+    q = wk(server)
+
+    q("""exec sp_columns student""")
+
+    server.just_exec("""alter table student add comment varchar(100) not null default ''""")
+
+    q("""exec sp_columns student""")
+
+    try:
+        server.just_exec("""alter table student alter column comment varchar(100) null""")
+    except Exception as e:
+        print("?", e)
+
+    try:
+        server.just_exec("""alter table student alter column comment int""")
+    except Exception as e:
+        server.db.rollback()
+        server.just_exec("""alter table student drop constraint %s""" % (str(e).split(' ')[3][1:-1]))
+
+    server.just_exec("""alter table student alter column comment int""")
+
+    q("""exec sp_columns student""")
+
+    server.just_exec("""alter table student drop column comment""")
+
+    q("""exec sp_columns student""")
+
+    server.drop(xls.Students)
+
+    q("""exec sp_columns student""")
+
+    server.create(xls.Students)
+
+    q("""exec sp_columns student""")
