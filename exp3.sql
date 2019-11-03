@@ -1,15 +1,20 @@
 select id, name from student where class_id = 'g09402'
+/*
 +----+------+
 | id | name |
 +----+------+
 +----+------+
+*/
 select week_hour, credit from course where name = N'网络技术与实践'
+/*
 +-----------+--------+
 | week_hour | credit |
 +-----------+--------+
 |     4     |   4    |
 +-----------+--------+
+*/
 select student_id, score from student_course where course_id = 'dep04_s001' order by score desc 
+/*
 +------------+-------+
 | student_id | score |
 +------------+-------+
@@ -23,48 +28,63 @@ select student_id, score from student_course where course_id = 'dep04_s001' orde
 |  g0940205  |   52  |
 |  g0940203  |   44  |
 +------------+-------+
+*/
 select * from student where name like N'张%' 
+/*
 +----+------+----------+--------+-------+------------+---------+
 | id | name | class_id | gender | birth | created_at | address |
 +----+------+----------+--------+-------+------------+---------+
 +----+------+----------+--------+-------+------------+---------+
+*/
 select * from student where birth between '1994-01-01' and '1995-12-31' 
+/*
 +----+------+----------+--------+-------+------------+---------+
 | id | name | class_id | gender | birth | created_at | address |
 +----+------+----------+--------+-------+------------+---------+
 +----+------+----------+--------+-------+------------+---------+
+*/
 select id, name, gender, birth from student where gender = N'女' and birth > '1992' order by birth desc 
+/*
 +----+------+--------+-------+
 | id | name | gender | birth |
 +----+------+--------+-------+
 +----+------+--------+-------+
+*/
 select * from student
+/*
 +----+------+----------+--------+-------+------------+---------+
 | id | name | class_id | gender | birth | created_at | address |
 +----+------+----------+--------+-------+------------+---------+
 +----+------+----------+--------+-------+------------+---------+
+*/
 select count(1) from student
+/*
 +---+
 |   |
 +---+
 | 0 |
 +---+
+*/
 select id, name, score from student_course left join student on student_id = id
         where course_id = 'dep04_s002' and score > 85 
+/*
 +------+------+-------+
 |  id  | name | score |
 +------+------+-------+
 | None | None |   98  |
 | None | None |   87  |
 +------+------+-------+
+*/
 select id, name,
         string_agg(course_id, ', ') as course_ids,
         string_agg(score, ', ') as score_ids
         from student left join student_course on student_id = id group by id, name
+/*
 +----+------+------------+-----------+
 | id | name | course_ids | score_ids |
 +----+------+------------+-----------+
 +----+------+------------+-----------+
+*/
 select student_id, string_agg(course.name, ',') as course_name, 
         string_agg((case when student_course.score >= 60 then student_course.credit else 0 end), ',') as course_credit,
         string_agg(student_course.score, ',') as course_score from student left join (
@@ -74,12 +94,15 @@ select student_id, string_agg(course.name, ',') as course_name,
             select student.id from student left join class on class_id = class.id
              where class.dept_id = isnull((select id from department where name=N'计算机科学'), 'dep_-1')
         ) group by student_id 
+/*
 +------------+-------------+---------------+--------------+
 | student_id | course_name | course_credit | course_score |
 +------------+-------------+---------------+--------------+
 +------------+-------------+---------------+--------------+
+*/
 select teacher.id, name, gender, birth, dept_id, prof, phone, address, post_code, t_type from teacher inner join teacher_type on teacher_type.id = teacher.cat
         
+/*
 +-----------+--------+--------+---------------------+---------+--------+-------------+------------------------+-----------+--------+
 |     id    |  name  | gender |        birth        | dept_id |  prof  |    phone    |        address         | post_code | t_type |
 +-----------+--------+--------+---------------------+---------+--------+-------------+------------------------+-----------+--------+
@@ -101,9 +124,11 @@ select teacher.id, name, gender, birth, dept_id, prof, phone, address, post_code
 | dep04_004 |  严为  |   男   | 1978-09-01 00:00:00 |  dep_04 |  助教  |   7654987   |  南京鼓楼区长虹路3号   |   210002  |  兼职  |
 | dep04_005 |  乔红  |   女   | 1969-05-31 00:00:00 |  dep_04 |  讲师  |   8802888   |   南京太州青年路3号    |   210071  |  外聘  |
 +-----------+--------+--------+---------------------+---------+--------+-------------+------------------------+-----------+--------+
+*/
 select teacher_id, teacher.id, name, course_id, class_id, sem, year,
         teacher_course.id as teacher_course_id, teacher_course.address, book_id
         from teacher join teacher_course on teacher.id = teacher_id
+/*
 +------------+-----------+--------+------------+----------+-----+-----------+-------------------+-----------+---------------+
 | teacher_id |     id    |  name  | course_id  | class_id | sem |    year   | teacher_course_id |  address  |    book_id    |
 +------------+-----------+--------+------------+----------+-----+-----------+-------------------+-----------+---------------+
@@ -119,14 +144,17 @@ select teacher_id, teacher.id, name, course_id, class_id, sem, year,
 | dep04_004  | dep04_004 |  严为  | dep04_s004 |  g09402  |  1  | 2011/2012 |     220521897     | 教学楼211 | dep04_s004_01 |
 | dep04_005  | dep04_005 |  乔红  | dep04_s001 |  g09403  |  1  | 2011/2012 |     210512456     | 教学楼212 | dep04_s001_01 |
 +------------+-----------+--------+------------+----------+-----+-----------+-------------------+-----------+---------------+
+*/
 select id, name,
         count(course_id) as course_count
         from student left join student_course on student_id = id group by id, name
         order by course_count desc
+/*
 +----+------+--------------+
 | id | name | course_count |
 +----+------+--------------+
 +----+------+--------------+
+*/
 
     select teacher_id, teacher_course.course_id, string_agg(student_id, ',') as student_ids
         from teacher_course left join student_course on teacher_course.course_id = student_course.course_id
@@ -135,6 +163,7 @@ select id, name,
         )
         group by teacher_id, teacher_course.course_id
     
+/*
 +------------+------------+----------------------------------------------------------------------------------+
 | teacher_id | course_id  |                                   student_ids                                    |
 +------------+------------+----------------------------------------------------------------------------------+
@@ -148,6 +177,7 @@ select id, name,
 | dep04_004  | dep04_s004 |          g0940201,g0940202,g0940203,g0940204,g0940205,g0940206,g0940207          |
 | dep04_005  | dep04_s001 | g0940201,g0940202,g0940203,g0940204,g0940205,g0940206,g0940207,g0940301,g0940302 |
 +------------+------------+----------------------------------------------------------------------------------+
+*/
 
     select id, name from 
     ((select course_id from teacher left join teacher_course on
@@ -157,11 +187,13 @@ select id, name,
         teacher.id = teacher_course.teacher_id
       where teacher.name = N'乔红')) as cmn left join course on id = course_id
     
+/*
 +------------+--------------------------+
 |     id     |           name           |
 +------------+--------------------------+
 | dep04_s001 | SQL Server数据库开发技术 |
 +------------+--------------------------+
+*/
 
     select course.* from 
     ((select course_id from teacher left join teacher_course on
@@ -171,32 +203,40 @@ select id, name,
         teacher.id = teacher_course.teacher_id
       where teacher.name = N'乔红')) as cmn left join course on id = course_id
     
+/*
 +------------+--------------+---------------+------------+-----------+--------+
 |     id     |     name     |    book_id    | total_hour | week_hour | credit |
 +------------+--------------+---------------+------------+-----------+--------+
 | dep04_b001 |  计算机基础  | dep04_b001_01 |     68     |     4     |   4    |
 | dep04_s004 | 软件开发技术 | dep04_s004_01 |     51     |     3     |   3    |
 +------------+--------------+---------------+------------+-----------+--------+
+*/
 select id, name
         from student left join student_course on student_id = id group by id, name
         having count(course_id) >= 3
+/*
 +----+------+
 | id | name |
 +----+------+
 +----+------+
+*/
 select avg(score) from student_course where course_id = 'dep04_b001'
+/*
 +----+
 |    |
 +----+
 | 77 |
 +----+
+*/
 select student.id, max(isnull(score, -1)) from
         student left join student_course on student.id = student_id
         group by student.id
+/*
 +----+--+
 | id |  |
 +----+--+
 +----+--+
+*/
 
     select yw2011_2012_st_mx_stu.*, name, class_id from
     (select course_id, mx_score, student_id from
@@ -213,19 +253,23 @@ select student.id, max(isnull(score, -1)) from
             id = course_id and mx_score = score
     ) as yw2011_2012_st_mx_stu left join student on student_id = id
     
+/*
 +------------+----------+------------+------+----------+
 | course_id  | mx_score | student_id | name | class_id |
 +------------+----------+------------+------+----------+
 | dep04_s004 |    95    |  g0940202  | None |   None   |
 +------------+----------+------------+------+----------+
+*/
 
     select course.name, book.name as book_name, author, publish
      from course left join book on book_id = book.id where course.name = N'SQL Server数据库开发技术'
+/*
 +--------------------------+--------------------------+--------+--------------------+
 |           name           |        book_name         | author |      publish       |
 +--------------------------+--------------------------+--------+--------------------+
 | SQL Server数据库开发技术 | SQL Server数据库开发技术 |  成虎  | 北方交通大学出版社 |
 +--------------------------+--------------------------+--------+--------------------+
+*/
 
     select name, prof from
         (select teacher_id, course_id
@@ -236,69 +280,87 @@ select student.id, max(isnull(score, -1)) from
         and course_id = (select id from course where name=N'JAVA程序设计与开发')) as scs_java_teachers
         left join teacher on teacher_id = id
     
+/*
 +------+------+
 | name | prof |
 +------+------+
 | 章红 | 教授 |
 +------+------+
+*/
 
     select name, gender from teacher where id in (select id from teacher where gender=N'女' and prof = N'副教授')
+/*
 +------+--------+
 | name | gender |
 +------+--------+
 | 马丽 |   女   |
 | 包维 |   女   |
 +------+--------+
+*/
 
     select * from teacher where id in (select teacher_id from teacher_course where course_id = 'dep01_s002')
+/*
 +-----------+--------+--------+---------------------+---------+--------+---------+----------------+-----------+-----+
 |     id    |  name  | gender |        birth        | dept_id |  prof  |  phone  |    address     | post_code | cat |
 +-----------+--------+--------+---------------------+---------+--------+---------+----------------+-----------+-----+
 | dep01_001 | 王敬远 |   男   | 1956-09-09 00:00:00 |  dep_01 | 副教授 | 6211544 | 南京先贤路31号 |   210002  |  1  |
 +-----------+--------+--------+---------------------+---------+--------+---------+----------------+-----------+-----+
+*/
 
     select id, name from student where id in (select student_id from student_course where course_id = 'dep04_s002')
+/*
 +----+------+
 | id | name |
 +----+------+
 +----+------+
+*/
 
         select id, name from student where id in (select distinct student_id from student_course where score < 60)
+/*
 +----+------+
 | id | name |
 +----+------+
 +----+------+
+*/
 
         select name, gender, address from student where id in (
         select distinct student_id from student_course
         where score < 60 and course_id = (select id from course where name=N'网页设计'))
+/*
 +------+--------+---------+
 | name | gender | address |
 +------+--------+---------+
 +------+--------+---------+
+*/
 
     select id, name from student where id in (
     select distinct student_id from student_course
     where course_id = (select id from course where name=N'计算机基础'))
+/*
 +----+------+
 | id | name |
 +----+------+
 +----+------+
+*/
 
     select id, name from student where id not in (
     select distinct student_id from student_course
     where course_id = (select id from course where name=N'计算机基础'))
+/*
 +----+------+
 | id | name |
 +----+------+
 +----+------+
+*/
 
     select id, name from
     student where not exists 
     ((select course_id from student_course where student_id = 'g0940201') except
      (select course_id from student_course where student_id = student.id))
     
+/*
 +----+------+
 | id | name |
 +----+------+
 +----+------+
+*/

@@ -91,18 +91,27 @@ class SqlServer:
                                                         else str(column) for column in row]) + ")" for row in table]))
 
     def drop(self, table):
+        print("""
+        if exists(select name from sys.tables where name='%s')
+        drop table %s;
+        """ % (table.Table, table.Table))
         return self.just_exec("""
         if exists(select name from sys.tables where name='%s')
         drop table %s;
         """ % (table.Table, table.Table))
 
     def drop_database(self, database_name):
+        print("""
+        if exists(select name from sys.databases where name='%s')
+        drop database %s;
+        """ % (database_name, database_name))
         return self.just_exec("""
         if exists(select name from sys.databases where name='%s')
         drop database %s;
         """ % (database_name, database_name))
 
     def create(self, table):
+        print(table.CreateStatement)
         return self.just_exec(table.CreateStatement)
 
     def select(self, table):
