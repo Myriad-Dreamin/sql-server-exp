@@ -55,11 +55,6 @@ with SqlServer("student_source") as server:
     server.dump_table(xls.get_teacher_course())
     print('/*\n{}\n*/'.format(list(server.select(xls.TeacherCourses))))
 
-    server.drop(xls.TeacherCourses).create(xls.TeacherCourses)
-
-    server.dump_table(xls.get_teacher_course())
-    print('/*\n{}\n*/'.format(list(server.select(xls.TeacherCourses))))
-
     q = wk(server)
 
     q("""exec sp_columns student""")
@@ -97,6 +92,7 @@ with SqlServer("student_source") as server:
     q("""exec sp_columns student""")
 
     server.create(xls.Students)
+    server.dump_table(xls.get_student())
 
     q("""exec sp_columns student""")
 
