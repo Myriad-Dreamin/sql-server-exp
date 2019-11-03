@@ -25,32 +25,43 @@ class datetime_str:
 
 
 class SqlServer:
-    def __init__(self, database=None, host='localhost', user='SA', password='<xX123456>'):
+    def __init__(self, database=None, auto_commit=None, host='localhost', user='SA', password='<xX123456>'):
         self.db = None
         self.database = database
         self.host = host
         self.user = user
         self.password = password
+        self.auto_commit = auto_commit
 
     def __enter__(self):
         self.close()
         self.db = pymssql.connect(self.host, self.user, self.password,
                                   self.database)
+        if self.auto_commit is not None:
+            self.db.autocommit(self.auto_commit)
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.close()
 
-    def show_database(self) -> TableCollection.Sys.Database:
-        cursor = self.db.cursor()
-        cursor.execute("""
-        select Name from sys.databases;
-        """)
+    def show_database_cursor(self):
+        return self.query_cursor("""select Name from sys.databases;""")
 
-        results = []
-        for row in cursor.fetchall():
-            results.append(TableCollection.Sys.Database(name=row[0]))
+    def show_database(self) -> TableCollection.Sys.Database:
+        cursor = self.show_database_cursor()
+        results = [TableCollection.Sys.Database(name=row[0]) for row in cursor.fetchall()]
+        self.return_cursor(cursor)
         return results
+
+    def get_database_id(self, database_name):
+        res = self.query("""select database_id from sys.databases where name = '%s'""" % (database_name, ))
+        if len(res) != 0:
+            return res[0][0]
+        return None
+
+    @staticmethod
+    def return_cursor(cursor):
+        return cursor.close()
 
     def just_exec(self, stmt):
         self.db.cursor().execute(stmt)
@@ -63,7 +74,10 @@ class SqlServer:
         return cursor
 
     def query(self, stmt):
-        return self.query_cursor(stmt).fetchall()
+        cursor = self.query_cursor(stmt)
+        results = cursor.fetchall()
+        self.return_cursor(cursor)
+        return results
 
     def use_database(self, db_name):
         return self.just_exec("use " + db_name)
@@ -81,6 +95,12 @@ class SqlServer:
         if exists(select name from sys.tables where name='%s')
         drop table %s;
         """ % (table.Table, table.Table))
+
+    def drop_database(self, database_name):
+        return self.just_exec("""
+        if exists(select name from sys.databases where name='%s')
+        drop database %s;
+        """ % (database_name, database_name))
 
     def create(self, table):
         return self.just_exec(table.CreateStatement)
