@@ -31,7 +31,7 @@ with SqlServer("student_source") as server:
              where class.dept_id = isnull((select id from department where name=N'计算机科学'), 'dep_-1')
         ) group by student_id """)
 
-    q("""select teacher.id, name, gender, birth, dept_id, prof, phone, address, post_code, t_type from teacher inner join teacher_type on teacher_type.id = teacher.cat
+    q("""select teacher.*, t_type from teacher left join teacher_type on teacher_type.id = teacher.cat
         """)
 
     # q("""select student_course.course_id, student_id, score, credit,  from student_course inner join teacher_course
@@ -39,7 +39,7 @@ with SqlServer("student_source") as server:
 
     q("""select teacher_id, teacher.id, name, course_id, class_id, sem, year,
         teacher_course.id as teacher_course_id, teacher_course.address, book_id
-        from teacher join teacher_course on teacher.id = teacher_id""")
+        from teacher full join teacher_course on teacher.id = teacher_id""")
 
     q("""select id, name,
         count(course_id) as course_count

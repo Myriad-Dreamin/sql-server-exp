@@ -196,7 +196,7 @@ exec sp_columns student
 +-----------------+-------------+------------+-------------+-----------+-----------+-----------+--------+-------+-------+----------+---------+-------------+---------------+------------------+-------------------+------------------+-------------+--------------+
 */
 alter table student alter column comment varchar(100) null
-alter table student drop constraint DF__student__comment__60A75C0F
+alter table student drop constraint DF__student__comment__47DBAE45
 alter table student alter column comment int
 exec sp_columns student
 /*
