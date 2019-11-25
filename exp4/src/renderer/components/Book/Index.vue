@@ -67,12 +67,12 @@
             <el-row :gutter="20">
                 <el-col :span="2"><div class="retain-height"></div></el-col>
                 <el-col :span="4">
-                    <el-link :underline="false" class="m-text" type="warning" @click="target({name: 'book/update-page'})">更新教材信息</el-link>
+                    <el-link :underline="false" class="m-text" type="warning" @click="target({name: 'book/update-page'})">批量更新教材信息</el-link>
                 </el-col>
                 <el-col :span="16">
                     <div class="m-text-container">
                         <p class="m-text" style="display: block;line-height: 100px;">
-                            插入一条或多条教材信息，允许从excel导入。支持对单条信息的操作。
+                            批量更新
                         </p></div>
                 </el-col>
                 <el-col :span="2"><div class="retain-height"></div></el-col>
@@ -81,7 +81,7 @@
             <el-row :gutter="20">
                 <el-col :span="2"><div class="retain-height"></div></el-col>
                 <el-col :span="4">
-                    <el-link :underline="false" class="m-text" type="danger" @click="target({name: 'book/delete-page'})">删除教材信息</el-link>
+                    <el-link :underline="false" class="m-text" type="danger" @click="target({name: 'book/delete-page'})">批量删除教材信息</el-link>
                 </el-col>
                 <el-col :span="16">
                     <div class="m-text-container">

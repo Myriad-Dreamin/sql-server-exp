@@ -103,7 +103,7 @@ export default {
             console.log(this.bookInfos);
             const connection = await db.db.connect();
             const statement = await connection.createStatement();
-            await statement.prepare('insert into student values(?, ?, ?, ?, ?)');
+            await statement.prepare('insert into book values(?, ?, ?, ?, ?)');
             await statement.bind(
                 [this.bookInfos[index].id, this.bookInfos[index].name,
                     this.bookInfos[index].publish, this.bookInfos[index].author,
@@ -111,7 +111,6 @@ export default {
             const result = await statement.execute();
             console.log(result);
             await statement.close();
-            await connection.close();
             this.removeItem(index);
         },
         async submitItems() {

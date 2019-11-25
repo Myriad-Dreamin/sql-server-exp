@@ -80,9 +80,6 @@
 <script>
 import db from '../../../module/mssql';
 
-function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
 
 export default {
     data() {
@@ -90,8 +87,8 @@ export default {
             bookInfos: [],
             pageCount: 10,
             pageNumber: 1,
-            bookCount: 1123,
-            timeCost: 0.001,
+            bookCount: 0,
+            timeCost: 0,
         };
     },
     async mounted() {
@@ -101,14 +98,10 @@ export default {
     methods: {
         async update() {
             let dt = Date.now();
-            const connection = await db.db.connect();
-            this.bookCount = (await connection.query('select count(1) from book'))[0][''];
-            this.bookInfos = await connection.query('select * from (select top '+ Math.min(this.pageCount, this.pageCount + this.bookCount - this.pageNumber * this.pageCount).toString() +' * from (select top ' + (this.pageNumber * this.pageCount).toString() + ' * from book order by id) as xx order by id desc) as xy order by id');
-            await connection.close();
+            let result = await db.query(this.pageCount, this.pageNumber);
+            this.bookCount = result.bookCount;
+            this.bookInfos = result.bookInfos;
             this.timeCost = Date.now() - dt;
-        },
-        async push_item() {
-            console.log(this.bookInfos);
         },
         async prevPage() {
             if (this.pageNumber > 1) {
