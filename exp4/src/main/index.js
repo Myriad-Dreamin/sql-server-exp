@@ -17,7 +17,7 @@ const winURL = process.env.NODE_ENV === 'development'
     // eslint-disable-next-line no-undef
     : `file://${__dirname}/index.html`;
 
-import { closeHandler } from 'module/mssql';
+import { closeHandler } from '../module/mssql';
 
 
 function createWindow () {

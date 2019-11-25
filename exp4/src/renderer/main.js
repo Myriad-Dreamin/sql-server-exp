@@ -11,17 +11,23 @@ import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
 
 Vue.use(ElementUI);
-// Vue.use(Loading.directive);
-//
-// Vue.prototype.$loading = Loading.service;
-// Vue.prototype.$msgbox = MessageBox;
-// Vue.prototype.$alert = MessageBox.alert;
-// Vue.prototype.$confirm = MessageBox.confirm;
-// Vue.prototype.$prompt = MessageBox.prompt;
-// Vue.prototype.$notify = Notification;
-// Vue.prototype.$message = Message;
-//
 
+import { db } from '../module/mssql';
+
+window.db = db;
+
+let loginData = {
+    uid: 'SA',
+    pwd: '<xX123456>',
+}
+
+try {
+    db.connect(loginData.uid, loginData.pwd);
+    // await this.$router.push({name: 'book/insert-page'});
+} catch (e) {
+    window.console.log('error', e);
+    // this.logining = false;
+}
 
 // eslint-disable-next-line no-undef
 if (!process.env.IS_WEB) Vue.use(require('vue-electron'));

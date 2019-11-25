@@ -1,13 +1,13 @@
 <template>
-  <div id="app">
+  <div id="app" style="height: 100%">
     <router-view></router-view>
   </div>
 </template>
 
 <script>
-  export default {
+export default {
     name: 'exp4'
-  }
+};
 </script>
 
 <style>

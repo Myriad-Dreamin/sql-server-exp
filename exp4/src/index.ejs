@@ -3,7 +3,7 @@
 
 <head >
     <meta charset="utf-8">
-    <title>atomizer.js</title>
+    <title>学生管理系统</title>
     <% if (htmlWebpackPlugin.options.nodeModules) { %>
     <!-- Add `node_modules/` to global paths so `require` works properly in development -->
     <script>
@@ -13,6 +13,19 @@
     <style>
         body {
             margin: 0;
+        }
+        .retain-height {
+            height: 100%;
+            min-height: 1px;
+        }
+
+        .clearfix:before,
+        .clearfix:after {
+            display: table;
+            content: "";
+        }
+        .clearfix:after {
+            clear: both
         }
     </style>
 </head>

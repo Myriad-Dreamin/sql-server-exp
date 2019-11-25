@@ -2,13 +2,17 @@
 
 import odbc from 'odbc';
 
+
+let dbs = [];
+
 class Mssql {
     constructor() {
         this.db = null;
+        dbs.push(this);
     }
 
     async connect(uid, pwd) {
-        if (!((uid instanceof String) && (pwd instanceof String))) {
+        if (!((typeof(uid).toString() === 'string') && (typeof(pwd).toString() === 'string'))) {
             window.console.log('bad uid, pwd arg');
             return;
         }
@@ -28,9 +32,7 @@ class Mssql {
 
 }
 
-let db = Mssql();
-
-let dbs = [db];
+let db = new Mssql();
 
 function closeHandler() {
     for (let d of dbs) {
