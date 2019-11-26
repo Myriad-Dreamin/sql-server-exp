@@ -1,42 +1,40 @@
 <template>
-    <el-container class="retain-height m-container">
-        <el-header class="m-header">
-            <el-row class="retain-height">
-                <el-col :span="16" class="retain-height">
-                    <div class="vertical-align-container">
-                        <div class="vertical-align-fill-div"></div>
-                        <el-breadcrumb separator-class="el-icon-arrow-right" class="vertical-align-div">
-                            <el-breadcrumb-item :to="{ path: '/' }">管理系统</el-breadcrumb-item>
-                            <el-breadcrumb-item :to="{ name: 'book/index-page' }">教材信息</el-breadcrumb-item>
-                            <el-breadcrumb-item :to="{ name: 'book/update-page' }">批量更新</el-breadcrumb-item>
-                        </el-breadcrumb>
-                        <div class="vertical-align-fill-div"></div>
-                    </div>
-                </el-col>
-                <el-col :span="4" class="retain-height">
-                    <div class="vertical-align-container">
-                        <div class="vertical-align-fill-div"></div>
-                        <div class="head-font" style="font-size: 12px; float: right; text-align: right; padding: 0 3px;">{{matchCount}}条数据</div>
-                        <div class="vertical-align-fill-div"></div>
-                    </div>
-                </el-col>
-                <el-col :span="2" class="retain-height">
-                    <div class="vertical-align-container">
-                        <div class="vertical-align-fill-div"></div>
-                        <el-button type="text" class="head-font" @click="filter">过滤！</el-button>
-                        <div class="vertical-align-fill-div"></div>
-                    </div>
-                </el-col>
-                <el-col :span="2" class="retain-height">
-                    <div class="vertical-align-container">
-                        <div class="vertical-align-fill-div"></div>
-                        <el-button type="text" class="head-font" @click="removeWithFilter">删除！</el-button>
-                        <div class="vertical-align-fill-div"></div>
-                    </div>
-                </el-col>
-            </el-row>
-        </el-header>
-        <el-main>
+    <bass-line>
+        <el-row class="retain-height" slot="header">
+            <el-col :span="16" class="retain-height">
+                <div class="vertical-align-container">
+                    <div class="vertical-align-fill-div"></div>
+                    <el-breadcrumb separator-class="el-icon-arrow-right" class="vertical-align-div">
+                        <el-breadcrumb-item :to="{ path: '/index' }">管理系统</el-breadcrumb-item>
+                        <el-breadcrumb-item :to="{ name: 'book/index-page' }">教材信息</el-breadcrumb-item>
+                        <el-breadcrumb-item :to="{ name: 'book/update-page' }">批量更新</el-breadcrumb-item>
+                    </el-breadcrumb>
+                    <div class="vertical-align-fill-div"></div>
+                </div>
+            </el-col>
+            <el-col :span="4" class="retain-height">
+                <div class="vertical-align-container">
+                    <div class="vertical-align-fill-div"></div>
+                    <div class="head-font" style="font-size: 12px; float: right; text-align: right; padding: 0 3px;">{{matchCount}}条数据</div>
+                    <div class="vertical-align-fill-div"></div>
+                </div>
+            </el-col>
+            <el-col :span="2" class="retain-height">
+                <div class="vertical-align-container">
+                    <div class="vertical-align-fill-div"></div>
+                    <el-button type="text" class="head-font is-link" @click="filter">过滤！</el-button>
+                    <div class="vertical-align-fill-div"></div>
+                </div>
+            </el-col>
+            <el-col :span="2" class="retain-height">
+                <div class="vertical-align-container">
+                    <div class="vertical-align-fill-div"></div>
+                    <el-button type="text" class="head-font is-link" @click="updateWithFilter">更新！</el-button>
+                    <div class="vertical-align-fill-div"></div>
+                </div>
+            </el-col>
+        </el-row>
+        <template slot="main">
             <el-card style="margin: 20px 0;" class="book-item">
                 <el-row  :gutter="20">
                     <el-col :xs="24" :span="4">
@@ -76,6 +74,46 @@
                     </el-col>
                 </el-row>
             </el-card>
+
+            <el-card style="margin: 20px 0;" class="book-item">
+                <el-row  :gutter="20">
+                    <el-col :xs="24" :span="4">
+                        <el-input v-model="bookModifyFilter.id" :disabled="bookFilterNotModifying.id" placeholder="编号">
+                            <template slot="prepend">
+                                <el-link class="m-refer" :underline="false" @click="switchModifyState('id')">修改成</el-link>
+                            </template>
+                        </el-input>
+                    </el-col>
+                    <el-col :xs="24" :span="5">
+                        <el-input v-model="bookModifyFilter.name" :disabled="bookFilterNotModifying.name" placeholder="名称">
+                            <template slot="prepend">
+                                <el-link class="m-refer" :underline="false" @click="switchModifyState('name')">修改成</el-link>
+                            </template>
+                        </el-input>
+                    </el-col>
+                    <el-col :xs="24" :span="5">
+                        <el-input v-model="bookModifyFilter.publish" :disabled="bookFilterNotModifying.publish" placeholder="出版社">
+                            <template slot="prepend">
+                                <el-link class="m-refer" :underline="false" @click="switchModifyState('publish')">修改成</el-link>
+                            </template>
+                        </el-input>
+                    </el-col>
+                    <el-col :xs="24" :span="5">
+                        <el-input v-model="bookModifyFilter.author" :disabled="bookFilterNotModifying.author" placeholder="作者">
+                            <template slot="prepend">
+                                <el-link class="m-refer" :underline="false" @click="switchModifyState('author')">修改成</el-link>
+                            </template>
+                        </el-input>
+                    </el-col>
+                    <el-col :xs="24" :span="5">
+                        <el-input v-model="bookModifyFilter.price" :disabled="bookFilterNotModifying.price" placeholder="价格">
+                            <template slot="prepend">
+                                <el-link class="m-refer" :underline="false" @click="switchModifyState('price')">修改成</el-link>
+                            </template>
+                        </el-input>
+                    </el-col>
+                </el-row>
+            </el-card>
             <p style="text-align: center; font-size: 14px;">下面是前五条数据QAQ</p>
             <el-divider></el-divider>
             <el-table
@@ -106,16 +144,16 @@
 
             <el-dialog
                     title="提醒"
-                    :visible.sync="removeCheckDialog"
+                    :visible.sync="updateCheckDialog"
                     width="30%">
-                <span>确定要删除吗！？</span>
+                <span>确定要更新吗！？</span>
                 <span slot="footer" class="dialog-footer">
-                    <el-button @click="removeCheckDialog = false">取消</el-button>
-                    <el-button type="primary" @click="removeWithFilterCallback">确认</el-button>
+                    <el-button @click="updateCheckDialog = false">取消</el-button>
+                    <el-button type="primary" @click="updateWithFilterCallback">确认</el-button>
               </span>
             </el-dialog>
-        </el-main>
-    </el-container>
+        </template>
+    </bass-line>
 </template>
 
 <script>
@@ -140,34 +178,76 @@ export default {
                 author: true,
                 price: true,
             },
+            bookModifyFilter: {
+                id: '',
+                name: '',
+                publish: '',
+                author: '',
+                price: '',
+            },
+            bookFilterNotModifying: {
+                id: true,
+                name: true,
+                publish: true,
+                author: true,
+                price: true,
+            },
 
             matchCount: 0,
             limitation: 5,
-            removeCheckDialog: false,
+            updateCheckDialog: false,
         };
     },
     methods: {
         switchState(columnName) {
-            console.log(columnName);
             this.bookFilterClosed[columnName] = !this.bookFilterClosed[columnName];
+        },
+        switchModifyState(columnName) {
+            this.bookFilterNotModifying[columnName] = !this.bookFilterNotModifying[columnName];
         },
         async filter() {
             let result = await db.query(this.limitation, 1, this.checkWhereStmt());
             this.matchCount = result.bookCount;
             this.bookInfos = result.bookInfos;
         },
-        removeWithFilter() {
-            this.removeCheckDialog = true;
+        updateWithFilter() {
+            this.updateCheckDialog = true;
         },
-        async removeWithFilterCallback() {
-            this.removeCheckDialog = false;
-            // const connection = await db.db.connect();
-            // const statement = await connection.createStatement();
-            // console.log('delete from book ' + this.checkWhereStmt());
-            // await statement.prepare('delete from book ' + this.checkWhereStmt());
-            // await statement.execute();
-            // await connection.close();
-            // this.filter();
+        async updateWithFilterCallback() {
+            this.updateCheckDialog = false;
+            let setStmt = this.checkSetStmt();
+            if (setStmt !== '') {
+                const connection = await db.db.connect();
+                const statement = await connection.createStatement();
+
+                console.log('update book ' + setStmt + ' ' + this.checkWhereStmt());
+                await statement.prepare('update book ' + setStmt + ' ' + this.checkWhereStmt());
+                await statement.execute();
+                await connection.close();
+                this.filter();
+            }
+        },
+        checkSetStmt() {
+            let stmt = '';
+            if (this.bookFilterNotModifying.id === false) {
+                stmt = stmt + ((stmt === '') ? '' : ', ') + 'id = \'' + this.bookModifyFilter.id +'\'';
+            }
+            if (this.bookFilterNotModifying.name === false) {
+                stmt = stmt + ((stmt === '') ? '' : ', ') + 'name = N\'' + this.bookModifyFilter.name +'\'';
+            }
+            if (this.bookFilterNotModifying.publish === false) {
+                stmt = stmt + ((stmt === '') ? '' : ', ') + 'publish = N\'' + this.bookModifyFilter.publish +'\'';
+            }
+            if (this.bookFilterNotModifying.author === false) {
+                stmt = stmt + ((stmt === '') ? '' : ', ') + 'author = N\'' + this.bookModifyFilter.author +'\'';
+            }
+            if (this.bookFilterNotModifying.price === false) {
+                stmt = stmt + ((stmt === '') ? '' : ', ') + 'price = ' + this.bookModifyFilter.price;
+            }
+            if (stmt !== '') {
+                stmt = 'set ' + stmt;
+            }
+            return stmt;
         },
         checkWhereStmt() {
             let stmt = '';
@@ -196,64 +276,7 @@ export default {
 </script>
 
 <style scoped>
-
-    /deep/ .el-breadcrumb__item:last-child .el-breadcrumb__inner,
-    /deep/ .el-breadcrumb__inner,
-    /deep/ .el-breadcrumb__inner:hover,
-    /deep/ .el-breadcrumb__inner.is-link,
-    .head-font, .head-font:focus {
-        color: #cccccc;
-    }
-
-    /deep/ .el-breadcrumb__item:last-child .el-breadcrumb__inner:hover,
-    /deep/ .el-breadcrumb__inner.is-link:hover,
-    .head-font.is-link:hover {
-        color: #ffffff;
-    }
-
-    /deep/ .m-refer .el-link--inner:hover {
-        color: #cccccc;
-    }
-    /deep/ .m-refer .el-link--inner {
-        transition: all 0.2s;
-    }
-
-    .vertical-align-container {
-        width: 100%;
-        height: 100%;
-        display: flex;
-        flex-flow: column;
-    }
-
-    .vertical-align-fill-div {
-        flex: 1;
-        min-width: 1px;
-        min-height: 1px;
-    }
-
-    .vertical-align-div {
-        min-width: 1px;
-        min-height: 1px;
-    }
-
-    .m-container {
-        padding: 0 0;
-    }
-
-    .m-header {
-        /*border: 1px solid #eaeaea;*/
-        z-index: 1;
-        box-shadow: 0 0 25px #000505;
-        padding: 0 0 0 8%;
-        height: 5%;
-        background-color: #545c64;
-    }
-    .m-body {
-        height: 95%;
-    }
-
-    .book-item {
-        width: 100%;
-    }
-
+.book-item {
+    width: 100%;
+}
 </style>

@@ -1,12 +1,12 @@
 <template>
-    <el-container class="retain-height m-container">
-        <el-header class="m-header">
+    <bass-line>
+        <template slot="header">
             <el-row class="retain-height">
                 <el-col :span="18" class="retain-height">
                     <div class="vertical-align-container">
                         <div class="vertical-align-fill-div"></div>
                         <el-breadcrumb separator-class="el-icon-arrow-right" class="vertical-align-div">
-                            <el-breadcrumb-item :to="{ path: '/' }">管理系统</el-breadcrumb-item>
+                            <el-breadcrumb-item :to="{ path: '/index' }">管理系统</el-breadcrumb-item>
                             <el-breadcrumb-item :to="{ name: 'book/index-page' }">教材信息</el-breadcrumb-item>
                             <el-breadcrumb-item :to="{ name: 'book/query-page' }">查看教材</el-breadcrumb-item>
                         </el-breadcrumb>
@@ -46,12 +46,12 @@
                     </el-row>
                 </el-col>
             </el-row>
-        </el-header>
-        <el-main>
+        </template>
+        <template slot="main">
             <el-table
-                :data="bookInfos"
-                style="width: 100%"
-                fit>
+                    :data="bookInfos"
+                    style="width: 100%"
+                    fit>
                 <el-table-column
                         prop="id"
                         label="编号">
@@ -73,8 +73,8 @@
                         label="价格">
                 </el-table-column>
             </el-table>
-        </el-main>
-    </el-container>
+        </template>
+    </bass-line>
 </template>
 
 <script>
@@ -118,54 +118,3 @@ export default {
     }
 };
 </script>
-
-<style scoped>
-
-    /deep/ .el-breadcrumb__item:last-child .el-breadcrumb__inner,
-    /deep/ .el-breadcrumb__inner,
-    /deep/ .el-breadcrumb__inner:hover,
-    /deep/ .el-breadcrumb__inner.is-link,
-    .head-font, .head-font:focus {
-        color: #cccccc;
-    }
-
-    /deep/ .el-breadcrumb__item:last-child .el-breadcrumb__inner:hover,
-    /deep/ .el-breadcrumb__inner.is-link:hover,
-    .head-font.is-link:hover {
-        color: #ffffff;
-    }
-
-    .vertical-align-container {
-        width: 100%;
-        height: 100%;
-        display: flex;
-        flex-flow: column;
-    }
-
-    .vertical-align-fill-div {
-        flex: 1;
-        min-width: 1px;
-        min-height: 1px;
-    }
-
-    .vertical-align-div {
-        min-width: 1px;
-        min-height: 1px;
-    }
-
-    .m-container {
-        padding: 0 0;
-    }
-
-    .m-header {
-        /*border: 1px solid #eaeaea;*/
-        z-index: 1;
-        box-shadow: 0 0 25px #000505;
-        padding: 0 0 0 8%;
-        height: 5%;
-        background-color: #545c64;
-    }
-    .m-body {
-        height: 95%;
-    }
-</style>

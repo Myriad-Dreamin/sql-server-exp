@@ -1,0 +1,32 @@
+
+
+.vertical-align-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-flow: column;
+}
+
+.vertical-align-fill-div {
+    flex: 1;
+    min-width: 1px;
+    min-height: 1px;
+}
+
+.vertical-align-div {
+    min-width: 1px;
+    min-height: 1px;
+}
+
+.m-text {
+    word-wrap: break-word;
+    word-break: break-all;
+    font-size: 14px;
+    height: 100px;
+    margin: auto;
+}
+
+.m-text-container {
+    vertical-align:middle;
+}
+

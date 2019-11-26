@@ -1,20 +1,30 @@
+import db from '@module/mssql';
 import Vue from 'vue';
 import Router from 'vue-router';
 
 Vue.use(Router);
 
-export default new Router({
+let router = new Router({
     routes: [
         {
-            path: '/',
+            path: '/login',
             name: 'login-page',
-            component: require('@/components/Index').default
-            // component: require('@/components/Login').default
+            component: require('@/components/Login').default
         },
         {
             path: '/index',
             name: 'index-page',
             component: require('@/components/Index').default
+        },
+        {
+            path: '/config',
+            name: 'config-page',
+            component: require('@/components/Config').default
+        },
+        {
+            path: '/todo',
+            name: 'todo-page',
+            component: require('@/components/Todo').default
         },
         {
             path: '/book/index',
@@ -43,7 +53,20 @@ export default new Router({
         },
         {
             path: '*',
-            redirect: '/'
+            redirect: '/index'
         }
     ]
 });
+
+router.beforeEach(function (to, from, next) {
+    if (to.name === 'index-page' || to.name === 'config-page') {
+        next();
+        return;
+    }
+    if (db.isLogin === false && to.name !== 'login-page') {
+        router.push({name: 'login-page'}).then();
+    }
+    next();
+});
+
+export default router;

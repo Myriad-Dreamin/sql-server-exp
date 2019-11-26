@@ -1,5 +1,6 @@
 
 
+
 import odbc from 'odbc';
 
 
@@ -8,25 +9,37 @@ let dbs = [];
 class Mssql {
     constructor() {
         this.db = null;
+        this._isLogin = false;
         dbs.push(this);
     }
 
-    async connect(uid, pwd) {
-        if (!((typeof(uid).toString() === 'string') && (typeof(pwd).toString() === 'string'))) {
-            window.console.log('bad uid, pwd arg');
+    get isLogin() {
+        return this._isLogin;
+    }
+
+    set isLogin(value) {
+        window.vue_instance.$set(this, '_isLogin', value);
+    }
+
+    async connect(uid, pwd, dsn = 'stmssql') {
+        if (!((typeof(uid).toString() === 'string') && (typeof(pwd).toString() === 'string') && (typeof(dsn).toString() === 'string'))) {
+            window.console.log('bad uid, pwd, dsn arg');
             return;
         }
 
         if (this.db != null) {
             await this.close();
+            this.isLogin = false;
         }
-        this.db = await odbc.pool('DSN=stmssql; UID=' + uid + ';PWD=' + pwd);
+        this.db = await odbc.pool('DSN=' + dsn +  '; UID=' + uid + ';PWD=' + pwd);
+        this.isLogin = true;
     }
 
     async close() {
         if (this.db != null) {
             await this.db.close();
             this.db = null;
+            this.isLogin = false;
         }
     }
 

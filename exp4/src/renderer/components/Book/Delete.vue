@@ -1,42 +1,40 @@
 <template>
-    <el-container class="retain-height m-container">
-        <el-header class="m-header">
-            <el-row class="retain-height">
-                <el-col :span="16" class="retain-height">
-                    <div class="vertical-align-container">
-                        <div class="vertical-align-fill-div"></div>
-                        <el-breadcrumb separator-class="el-icon-arrow-right" class="vertical-align-div">
-                            <el-breadcrumb-item :to="{ path: '/' }">管理系统</el-breadcrumb-item>
-                            <el-breadcrumb-item :to="{ name: 'book/index-page' }">教材信息</el-breadcrumb-item>
-                            <el-breadcrumb-item :to="{ name: 'book/delete-page' }">批量删除</el-breadcrumb-item>
-                        </el-breadcrumb>
-                        <div class="vertical-align-fill-div"></div>
-                    </div>
-                </el-col>
-                <el-col :span="4" class="retain-height">
-                    <div class="vertical-align-container">
-                        <div class="vertical-align-fill-div"></div>
-                        <div class="head-font" style="font-size: 12px; float: right; text-align: right; padding: 0 3px;">{{matchCount}}条数据</div>
-                        <div class="vertical-align-fill-div"></div>
-                    </div>
-                </el-col>
-                <el-col :span="2" class="retain-height">
-                    <div class="vertical-align-container">
-                        <div class="vertical-align-fill-div"></div>
-                        <el-button type="text" class="head-font" @click="filter">过滤！</el-button>
-                        <div class="vertical-align-fill-div"></div>
-                    </div>
-                </el-col>
-                <el-col :span="2" class="retain-height">
-                    <div class="vertical-align-container">
-                        <div class="vertical-align-fill-div"></div>
-                        <el-button type="text" class="head-font" @click="removeWithFilter">删除！</el-button>
-                        <div class="vertical-align-fill-div"></div>
-                    </div>
-                </el-col>
-            </el-row>
-        </el-header>
-        <el-main>
+    <bass-line>
+        <el-row class="retain-height" slot="header">
+            <el-col :span="16" class="retain-height">
+                <div class="vertical-align-container">
+                    <div class="vertical-align-fill-div"></div>
+                    <el-breadcrumb separator-class="el-icon-arrow-right" class="vertical-align-div">
+                        <el-breadcrumb-item :to="{ path: '/index' }">管理系统</el-breadcrumb-item>
+                        <el-breadcrumb-item :to="{ name: 'book/index-page' }">教材信息</el-breadcrumb-item>
+                        <el-breadcrumb-item :to="{ name: 'book/delete-page' }">批量删除</el-breadcrumb-item>
+                    </el-breadcrumb>
+                    <div class="vertical-align-fill-div"></div>
+                </div>
+            </el-col>
+            <el-col :span="4" class="retain-height">
+                <div class="vertical-align-container">
+                    <div class="vertical-align-fill-div"></div>
+                    <div class="head-font" style="font-size: 12px; float: right; text-align: right; padding: 0 3px;">{{matchCount}}条数据</div>
+                    <div class="vertical-align-fill-div"></div>
+                </div>
+            </el-col>
+            <el-col :span="2" class="retain-height">
+                <div class="vertical-align-container">
+                    <div class="vertical-align-fill-div"></div>
+                    <el-button type="text" class="head-font is-link" @click="filter">过滤！</el-button>
+                    <div class="vertical-align-fill-div"></div>
+                </div>
+            </el-col>
+            <el-col :span="2" class="retain-height">
+                <div class="vertical-align-container">
+                    <div class="vertical-align-fill-div"></div>
+                    <el-button type="text" class="head-font is-link" @click="removeWithFilter">删除！</el-button>
+                    <div class="vertical-align-fill-div"></div>
+                </div>
+            </el-col>
+        </el-row>
+        <template slot="main">
             <el-card style="margin: 20px 0;" class="book-item">
                 <el-row  :gutter="20">
                     <el-col :xs="24" :span="4">
@@ -109,13 +107,13 @@
                     :visible.sync="removeCheckDialog"
                     width="30%">
                 <span>确定要删除吗！？</span>
-                    <span slot="footer" class="dialog-footer">
+                <span slot="footer" class="dialog-footer">
                     <el-button @click="removeCheckDialog = false">取消</el-button>
                     <el-button type="primary" @click="removeWithFilterCallback">确认</el-button>
               </span>
             </el-dialog>
-        </el-main>
-    </el-container>
+        </template>
+    </bass-line>
 </template>
 
 <script>
@@ -196,64 +194,7 @@ export default {
 </script>
 
 <style scoped>
-
-    /deep/ .el-breadcrumb__item:last-child .el-breadcrumb__inner,
-    /deep/ .el-breadcrumb__inner,
-    /deep/ .el-breadcrumb__inner:hover,
-    /deep/ .el-breadcrumb__inner.is-link,
-    .head-font, .head-font:focus {
-        color: #cccccc;
-    }
-
-    /deep/ .el-breadcrumb__item:last-child .el-breadcrumb__inner:hover,
-    /deep/ .el-breadcrumb__inner.is-link:hover,
-    .head-font.is-link:hover {
-        color: #ffffff;
-    }
-
-    /deep/ .m-refer .el-link--inner:hover {
-        color: #cccccc;
-    }
-    /deep/ .m-refer .el-link--inner {
-        transition: all 0.2s;
-    }
-
-    .vertical-align-container {
-        width: 100%;
-        height: 100%;
-        display: flex;
-        flex-flow: column;
-    }
-
-    .vertical-align-fill-div {
-        flex: 1;
-        min-width: 1px;
-        min-height: 1px;
-    }
-
-    .vertical-align-div {
-        min-width: 1px;
-        min-height: 1px;
-    }
-
-    .m-container {
-        padding: 0 0;
-    }
-
-    .m-header {
-        /*border: 1px solid #eaeaea;*/
-        z-index: 1;
-        box-shadow: 0 0 25px #000505;
-        padding: 0 0 0 8%;
-        height: 5%;
-        background-color: #545c64;
-    }
-    .m-body {
-        height: 95%;
-    }
-
-    .book-item {
-        width: 100%;
-    }
-
+.book-item {
+    width: 100%;
+}
 </style>
