@@ -6,8 +6,8 @@
                     <div class="vertical-align-fill-div"></div>
                     <el-breadcrumb separator-class="el-icon-arrow-right" class="vertical-align-div">
                         <el-breadcrumb-item :to="{ path: '/index' }">管理系统</el-breadcrumb-item>
-                        <el-breadcrumb-item :to="{ name: 'book/index-page' }">教材信息</el-breadcrumb-item>
-                        <el-breadcrumb-item :to="{ name: 'book/delete-page' }">批量删除</el-breadcrumb-item>
+                        <el-breadcrumb-item :to="{ name: 'book-index-page' }">教材信息</el-breadcrumb-item>
+                        <el-breadcrumb-item :to="{ name: 'book-delete-page' }">批量删除</el-breadcrumb-item>
                     </el-breadcrumb>
                     <div class="vertical-align-fill-div"></div>
                 </div>
@@ -150,21 +150,28 @@ export default {
             this.bookFilterClosed[columnName] = !this.bookFilterClosed[columnName];
         },
         async filter() {
-            let result = await db.query(this.limitation, 1, this.checkWhereStmt());
-            this.matchCount = result.bookCount;
-            this.bookInfos = result.bookInfos;
+            try {
+                let result = await db.query(this.limitation, 1, this.checkWhereStmt());
+                this.matchCount = result.bookCount;
+                this.bookInfos = result.bookInfos;
+            } catch (e) {
+                this.$message.error('查询错误: ' + e.toString());
+            }
         },
         removeWithFilter() {
             this.removeCheckDialog = true;
         },
         async removeWithFilterCallback() {
             this.removeCheckDialog = false;
-            const connection = await db.db.connect();
-            const statement = await connection.createStatement();
-            console.log('delete from book ' + this.checkWhereStmt());
-            await statement.prepare('delete from book ' + this.checkWhereStmt());
-            await statement.execute();
-            await connection.close();
+            try {
+                const connection = await db.db.connect();
+                const statement = await connection.createStatement();
+                await statement.prepare('delete from book ' + this.checkWhereStmt());
+                await statement.execute();
+                await connection.close();
+            } catch (e) {
+                this.$message.error('删除错误: ' + e.toString());
+            }
             this.filter();
         },
         checkWhereStmt() {

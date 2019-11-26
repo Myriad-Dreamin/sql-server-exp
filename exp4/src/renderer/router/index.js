@@ -17,6 +17,11 @@ let router = new Router({
             component: require('@/components/Index').default
         },
         {
+            path: '/',
+            name: 'home-page',
+            component: require('@/components/Index').default
+        },
+        {
             path: '/config',
             name: 'config-page',
             component: require('@/components/Config').default
@@ -28,27 +33,27 @@ let router = new Router({
         },
         {
             path: '/book/index',
-            name: 'book/index-page',
+            name: 'book-index-page',
             component: require('@/components/Book/Index').default
         },
         {
             path: '/book/insert',
-            name: 'book/insert-page',
+            name: 'book-insert-page',
             component: require('@/components/Book/Insert').default
         },
         {
             path: '/book/delete',
-            name: 'book/delete-page',
+            name: 'book-delete-page',
             component: require('@/components/Book/Delete').default
         },
         {
             path: '/book/update',
-            name: 'book/update-page',
+            name: 'book-update-page',
             component: require('@/components/Book/Update').default
         },
         {
             path: '/book/query',
-            name: 'book/query-page',
+            name: 'book-query-page',
             component: require('@/components/Book/Query').default
         },
         {
@@ -59,7 +64,7 @@ let router = new Router({
 });
 
 router.beforeEach(function (to, from, next) {
-    if (to.name === 'index-page' || to.name === 'config-page') {
+    if (to.name === 'index-page' || to.name === 'home-page' || to.name === 'config-page') {
         next();
         return;
     }

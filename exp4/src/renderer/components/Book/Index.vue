@@ -6,7 +6,7 @@
                     <div class="vertical-align-fill-div"></div>
                     <el-breadcrumb separator-class="el-icon-arrow-right" class="vertical-align-div">
                         <el-breadcrumb-item :to="{ path: '/index' }">管理系统</el-breadcrumb-item>
-                        <el-breadcrumb-item :to="{ name: 'book/index-page' }">教材信息</el-breadcrumb-item>
+                        <el-breadcrumb-item :to="{ name: 'book-index-page' }">教材信息</el-breadcrumb-item>
                     </el-breadcrumb>
                     <div class="vertical-align-fill-div"></div>
                 </div>
@@ -30,7 +30,7 @@
             <el-row :gutter="20">
                 <el-col :span="2"><div class="retain-height"></div></el-col>
                 <el-col :span="4">
-                    <el-link :underline="false" class="m-text" type="primary" @click="target({name: 'book/insert-page'})">插入教材信息</el-link>
+                    <el-link :underline="false" class="m-text" type="primary" @click="target({name: 'book-insert-page'})">插入教材信息</el-link>
                 </el-col>
                 <el-col :span="16">
                     <div class="m-text-container">
@@ -44,7 +44,7 @@
             <el-row :gutter="20">
                 <el-col :span="2"><div class="retain-height"></div></el-col>
                 <el-col :span="4">
-                    <el-link :underline="false" class="m-text" type="success" @click="target({name: 'book/query-page'})">查询教材信息</el-link>
+                    <el-link :underline="false" class="m-text" type="success" @click="target({name: 'book-query-page'})">查询教材信息</el-link>
                 </el-col>
                 <el-col :span="16">
                     <div class="m-text-container">
@@ -58,7 +58,7 @@
             <el-row :gutter="20">
                 <el-col :span="2"><div class="retain-height"></div></el-col>
                 <el-col :span="4">
-                    <el-link :underline="false" class="m-text" type="warning" @click="target({name: 'book/update-page'})">批量更新教材信息</el-link>
+                    <el-link :underline="false" class="m-text" type="warning" @click="target({name: 'book-update-page'})">批量更新教材信息</el-link>
                 </el-col>
                 <el-col :span="16">
                     <div class="m-text-container">
@@ -72,7 +72,7 @@
             <el-row :gutter="20">
                 <el-col :span="2"><div class="retain-height"></div></el-col>
                 <el-col :span="4">
-                    <el-link :underline="false" class="m-text" type="danger" @click="target({name: 'book/delete-page'})">批量删除教材信息</el-link>
+                    <el-link :underline="false" class="m-text" type="danger" @click="target({name: 'book-delete-page'})">批量删除教材信息</el-link>
                 </el-col>
                 <el-col :span="16">
                     <div class="m-text-container">
@@ -91,7 +91,7 @@ import db from '@module/mssql';
 
 
 export default {
-    name: 'book/index-page',
+    name: 'book-index-page',
     data() {
         return {
             db: db,

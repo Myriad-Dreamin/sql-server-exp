@@ -6,8 +6,8 @@
                     <div class="vertical-align-fill-div"></div>
                     <el-breadcrumb separator-class="el-icon-arrow-right" class="vertical-align-div">
                         <el-breadcrumb-item :to="{ path: '/index' }">管理系统</el-breadcrumb-item>
-                        <el-breadcrumb-item :to="{ name: 'book/index-page' }">教材信息</el-breadcrumb-item>
-                        <el-breadcrumb-item :to="{ name: 'book/update-page' }">批量更新</el-breadcrumb-item>
+                        <el-breadcrumb-item :to="{ name: 'book-index-page' }">教材信息</el-breadcrumb-item>
+                        <el-breadcrumb-item :to="{ name: 'book-update-page' }">批量更新</el-breadcrumb-item>
                     </el-breadcrumb>
                     <div class="vertical-align-fill-div"></div>
                 </div>
@@ -206,9 +206,13 @@ export default {
             this.bookFilterNotModifying[columnName] = !this.bookFilterNotModifying[columnName];
         },
         async filter() {
-            let result = await db.query(this.limitation, 1, this.checkWhereStmt());
-            this.matchCount = result.bookCount;
-            this.bookInfos = result.bookInfos;
+            try {
+                let result = await db.query(this.limitation, 1, this.checkWhereStmt());
+                this.matchCount = result.bookCount;
+                this.bookInfos = result.bookInfos;
+            } catch (e) {
+                this.$message.error('查询错误: ' + e.toString());
+            }
         },
         updateWithFilter() {
             this.updateCheckDialog = true;
@@ -217,13 +221,16 @@ export default {
             this.updateCheckDialog = false;
             let setStmt = this.checkSetStmt();
             if (setStmt !== '') {
-                const connection = await db.db.connect();
-                const statement = await connection.createStatement();
+                try {
+                    const connection = await db.db.connect();
+                    const statement = await connection.createStatement();
 
-                console.log('update book ' + setStmt + ' ' + this.checkWhereStmt());
-                await statement.prepare('update book ' + setStmt + ' ' + this.checkWhereStmt());
-                await statement.execute();
-                await connection.close();
+                    await statement.prepare('update book ' + setStmt + ' ' + this.checkWhereStmt());
+                    await statement.execute();
+                    await connection.close();
+                } catch (e) {
+                    this.$message.error('更新错误: ' + e.toString());
+                }
                 this.filter();
             }
         },

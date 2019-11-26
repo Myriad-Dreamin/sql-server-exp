@@ -7,8 +7,8 @@
                         <div class="vertical-align-fill-div"></div>
                         <el-breadcrumb separator-class="el-icon-arrow-right" class="vertical-align-div">
                             <el-breadcrumb-item :to="{ path: '/index' }">管理系统</el-breadcrumb-item>
-                            <el-breadcrumb-item :to="{ name: 'book/index-page' }">教材信息</el-breadcrumb-item>
-                            <el-breadcrumb-item :to="{ name: 'book/insert-page' }">新的教材</el-breadcrumb-item>
+                            <el-breadcrumb-item :to="{ name: 'book-index-page' }">教材信息</el-breadcrumb-item>
+                            <el-breadcrumb-item :to="{ name: 'book-insert-page' }">新的教材</el-breadcrumb-item>
                         </el-breadcrumb>
                         <div class="vertical-align-fill-div"></div>
                     </div>
@@ -16,14 +16,14 @@
                 <el-col :span="2" class="retain-height">
                     <div class="vertical-align-container">
                         <div class="vertical-align-fill-div"></div>
-                        <el-button type="text" class="head-font is-link">导入</el-button>
+                        <el-button type="text" class="head-font is-link" @click="importFrom">导入</el-button>
                         <div class="vertical-align-fill-div"></div>
                     </div>
                 </el-col>
                 <el-col :span="2" class="retain-height">
                     <div class="vertical-align-container">
                         <div class="vertical-align-fill-div"></div>
-                        <el-button type="text" class="head-font is-link">全部提交</el-button>
+                        <el-button type="text" class="head-font is-link" @click="submitItems">全部提交</el-button>
                         <div class="vertical-align-fill-div"></div>
                     </div>
                 </el-col>
@@ -98,21 +98,41 @@ export default {
     },
     methods: {
         async submitItem(index) {
-            console.log(this.bookInfos);
-            const connection = await db.db.connect();
-            const statement = await connection.createStatement();
-            await statement.prepare('insert into book values(?, ?, ?, ?, ?)');
-            await statement.bind(
-                [this.bookInfos[index].id, this.bookInfos[index].name,
-                    this.bookInfos[index].publish, this.bookInfos[index].author,
-                    parseFloat(this.bookInfos[index].price)]);
-            const result = await statement.execute();
-            console.log(result);
-            await statement.close();
-            this.removeItem(index);
+            try {
+                const connection = await db.db.connect();
+                const statement = await connection.createStatement();
+                await statement.prepare('insert into book values(?, ?, ?, ?, ?)');
+                await statement.bind(
+                    [this.bookInfos[index].id, this.bookInfos[index].name,
+                        this.bookInfos[index].publish, this.bookInfos[index].author,
+                        parseFloat(this.bookInfos[index].price)]);
+                await statement.execute();
+                await statement.close();
+                this.removeItem(index);
+            } catch (e) {
+                this.$message.error('提交错误: ' + e.toString());
+            }
         },
         async submitItems() {
-            console.log(this.bookInfos);
+            try {
+                const connection = await db.db.connect();
+                const statement = await connection.createStatement();
+                await statement.prepare('insert into book values(?, ?, ?, ?, ?)');
+                for (let index = this.bookInfos.length - 1; index >= 0; index--) {
+                    await statement.bind(
+                        [this.bookInfos[index].id, this.bookInfos[index].name,
+                            this.bookInfos[index].publish, this.bookInfos[index].author,
+                            parseFloat(this.bookInfos[index].price)]);
+                    await statement.execute();
+                    this.removeItem(index);
+                }
+                await statement.close();
+            } catch (e) {
+                this.$message.error('提交错误: ' + e.toString());
+            }
+        },
+        importFrom() {
+
         },
         addItem() {
             this.bookInfos.push({

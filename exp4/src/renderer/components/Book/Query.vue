@@ -7,8 +7,8 @@
                         <div class="vertical-align-fill-div"></div>
                         <el-breadcrumb separator-class="el-icon-arrow-right" class="vertical-align-div">
                             <el-breadcrumb-item :to="{ path: '/index' }">管理系统</el-breadcrumb-item>
-                            <el-breadcrumb-item :to="{ name: 'book/index-page' }">教材信息</el-breadcrumb-item>
-                            <el-breadcrumb-item :to="{ name: 'book/query-page' }">查看教材</el-breadcrumb-item>
+                            <el-breadcrumb-item :to="{ name: 'book-index-page' }">教材信息</el-breadcrumb-item>
+                            <el-breadcrumb-item :to="{ name: 'book-query-page' }">查看教材</el-breadcrumb-item>
                         </el-breadcrumb>
                         <div class="vertical-align-fill-div"></div>
                     </div>
@@ -97,11 +97,15 @@ export default {
     },
     methods: {
         async update() {
-            let dt = Date.now();
-            let result = await db.query(this.pageCount, this.pageNumber);
-            this.bookCount = result.bookCount;
-            this.bookInfos = result.bookInfos;
-            this.timeCost = Date.now() - dt;
+            try {
+                let dt = Date.now();
+                let result = await db.query(this.pageCount, this.pageNumber);
+                this.bookCount = result.bookCount;
+                this.bookInfos = result.bookInfos;
+                this.timeCost = Date.now() - dt;
+            }catch (e) {
+                this.$message.error('查询错误：' + e.toString());
+            }
         },
         async prevPage() {
             if (this.pageNumber > 1) {

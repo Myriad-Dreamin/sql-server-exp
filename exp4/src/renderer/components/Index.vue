@@ -57,7 +57,7 @@ export default {
         return {
             db: db,
             routeToX : [{
-                target: {name: 'book/index-page'},
+                target: {name: 'book-index-page'},
                 lnkDesc: '教材信息',
                 description: '对数据库进行教材信息有关的操作',
             }, {

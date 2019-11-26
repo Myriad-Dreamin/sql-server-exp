@@ -25,7 +25,7 @@ let loginData = usrCfg.get('login-pair', undefined);
 if (loginData !== undefined) {
     try {
         db.connect(loginData.uid, loginData.pwd).then(() => {});
-        // await this.$router.push({name: 'book/insert-page'});
+        // await this.$router.push({name: 'book-insert-page'});
     } catch (e) {
         window.console.log('error', e);
         // this.logining = false;

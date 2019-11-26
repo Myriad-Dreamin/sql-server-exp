@@ -68,6 +68,17 @@
                     <div  class="retain-height"></div>
                 </el-col>
             </el-row>
+
+            <el-dialog
+                    title="提醒"
+                    :visible.sync="loginFailed"
+                    width="30%">
+                <p>登录过程中发生了错误：{{loginException}}</p>
+                <p>有可能是odbc配置有问题，也有可能是你的密码与用户名不匹配</p>
+                <span slot="footer" class="dialog-footer">
+                    <el-button type="primary" @click="loginFailed = false">确认</el-button>
+              </span>
+            </el-dialog>
         </template>
     </bass-line>
 </template>
@@ -90,7 +101,9 @@ export default {
                 uid: [{required: true, message: '请输入您的账户', trigger: 'blur'}],
                 pwd: [{required: true, message: '请输入您的密码', trigger: 'blur'}]
             },
-            rememberMe: false
+            rememberMe: false,
+            loginException: undefined,
+            loginFailed: false,
         };
     },
     methods: {
@@ -108,11 +121,11 @@ export default {
                         }
                         await this.$router.push({name: 'index-page'});
                     } catch (e) {
-                        window.console.log('error', e);
+                        this.loginException = e;
+                        this.loginFailed = true;
                         this.logining = false;
                     }
                 } else {
-                    console.log('error submit!');
                     return false;
                 }
             });
