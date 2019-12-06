@@ -86,10 +86,21 @@
 <script>
 import db from '@module/mssql';
 import {usrCfg} from '@module/config';
+// import jschardet from 'jschardet';
 let loginData = usrCfg.get('login-pair', {
     uid: '',
     pwd: '',
 });
+
+
+// let decoder = new TextDecoder();
+// let encoderBuf = {};
+// function toUTF8(str) {
+//     let enc = jschardet.detect(str).encoding;
+//     console.log(enc);
+//     return decoder.decode((encoderBuf[enc] = (encoderBuf[enc] || new TextEncoder(enc))).encode(str));
+// }
+
 
 export default {
     name: 'login-page',
@@ -112,6 +123,7 @@ export default {
         },
         handleSubmit() {
             this.$refs.loginData.validate(async (valid) => {
+                console.log('submiting');
                 if (valid) {
                     this.logining = true;
                     try {

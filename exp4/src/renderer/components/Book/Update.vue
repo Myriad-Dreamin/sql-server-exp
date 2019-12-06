@@ -158,7 +158,7 @@
 
 <script>
 import db from '../../../module/mssql';
-
+import iconv from 'iconv-lite';
 
 export default {
     data() {
@@ -226,6 +226,7 @@ export default {
                     const statement = await connection.createStatement();
 
                     await statement.prepare('update book ' + setStmt + ' ' + this.checkWhereStmt());
+                    window.console.log('update book ' + setStmt + ' ' + this.checkWhereStmt());
                     await statement.execute();
                     await connection.close();
                 } catch (e) {

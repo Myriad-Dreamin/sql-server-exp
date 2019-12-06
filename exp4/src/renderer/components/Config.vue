@@ -34,7 +34,7 @@
                 <el-col :span="20" class="retain-height">
                     <h2>DSN配置名</h2>
                     <el-form ref="form" :model="cfgData" label-width="120px">
-                        <el-form-item label="隐私配置目录">
+                        <el-form-item label="DSN名">
                             <el-input v-model="cfgData.dsn"></el-input>
                         </el-form-item>
                         <p style="color: #606266; font-size: 14px; margin-bottom: 22px;">
