@@ -123,6 +123,7 @@ export default {
                         [this.bookInfos[index].id, this.bookInfos[index].name,
                             this.bookInfos[index].publish, this.bookInfos[index].author,
                             parseFloat(this.bookInfos[index].price)]);
+                    
                     await statement.execute();
                     this.removeItem(index);
                 }

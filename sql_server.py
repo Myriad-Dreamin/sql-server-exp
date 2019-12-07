@@ -100,6 +100,10 @@ class SqlServer:
         drop table %s;
         """ % (table.Table, table.Table))
 
+    def drop_procedure(self, procedure_name):
+        print("""drop proc if exists %s""" % (procedure_name))
+        return self.just_exec("""drop proc if exists %s""" % (procedure_name))
+
     def drop_database(self, database_name):
         print("""
         if exists(select name from sys.databases where name='%s')
