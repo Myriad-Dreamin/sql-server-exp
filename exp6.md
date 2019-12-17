@@ -1,4 +1,92 @@
-drop proc if exists sel_course_check
+## 数据库实验第六次实验 - 存储过程与触发器的创建实验
+
+Myriad Dreamin 2017211279 2017211301
+
+## 实验目的
+
++ 熟悉并掌握SQL SERVER中存储过程和触发器的概念。
++ 通过SQL SERVER管理平台和Transact-SQL语句创建存储过程和触发器的方法和
+步骤。
++ 掌握存储过程和触发器的执行方法。
++ 掌握存储过程和触发器的删除方法。
+
+## 实验平台及环境
+
+- 系统: Ubuntu18.04 LTS
+- 环境: Docker 18.09.7
+- 数据库版本: Microsoft SQL Server 2017
+
+## 实验内容
+
+
++ 完整性实验与要求：
+    + 分别定义数据库中各基础表的主、外键，实现实体完整性约束及参照完整性约束；
+    + 向学生表插入具有相同学号的数据，验证其实体完整性约束；
+    + 向学生表中插入一条数据，班级号是学生表的外键，验证参照完整性约束。
+    + 安全性实验内容与要求：
++ 登陆管理
+    + 将Windows账户中的用户LUXQ添加到SQL Sever登陆中，默认数据库为StudentDB；
+    + 创建名为teacher的SQL登陆，密码为123321，默认数据库为master，强制实施密码策略；
+    + 修改SQL登录名teacher的登录密码为789987；
+    + 禁用名为teacher的登陆；
+    + 删除teacher登录名。
++ 用户管理
+    + 创建名为 teacher的登录名，在学生选课数据库中，创建用户professor与teacher登录名对应；
+    + 在学生选课数据库中创建用户professor,将其名称改为professor2；
+    + 删除StudentDB数据库中用户professor2；
+    + 在学生选课数据库中，创建用户professor,其对应登录名为teacher，并将教师表权限授予professor；
+    + 在学生选课数据库中，拒绝用户professor查看教师表权限；
+用Enterprise Manager或Transact_SQL语句完成以上内容。
+
+## 实验步骤
+
+完整的实验脚本如下：
+
+```python
+    with SqlServer(database_name, auto_commit=True) as server:
+        q = wk(server)
+		server.drop_procedure("sel_course_check")
+        with open('sel_course_check.sql') as f:
+            proc = f.read()
+        server.just_exec(proc)
+        q("""execute sel_course_check 'g0940207'""")
+
+        server.drop_procedure("show_tea")
+        with open('show_tea.sql') as f:
+            proc = f.read()
+        server.just_exec(proc)
+        q("""execute show_tea""")
+
+        server.drop_trigger("check_teachers_dept_id")
+        with open('check_teachers_dept_id.sql') as f:
+            trigger = f.read()
+        server.just_exec(trigger)
+        # q("""execute show_tea""")
+
+        try:
+            server.just_exec("""insert into teacher(id, dept_id) values ('not_exists_id', 'not_exists_dept')""")
+        except Exception as e:
+            # pymssql.OperationalError().args
+            print("/* 验证触发器约束", type(e), e.args[0], e.args[1].decode('utf-8'), "*/")
+
+
+        server.drop_trigger("update_class")
+        with open('update_class.sql') as f:
+            trigger = f.read()
+        server.just_exec(trigger)
+
+        server.just_exec("""update class set id='test' where id='g09403' """)
+
+        q("""select id, class_id from student""")
+
+        server.just_exec("""update class set id='g09403' where id='test' """)
+
+        q("""select id, class_id from student""")
+```
+
+其中`sql_course_check.sql`内容如下：
+
+```sql
 create procedure sel_course_check
     @student_id varchar(20)
 as
@@ -23,6 +111,11 @@ begin
         select N'Fetch状态: ' + convert(varchar(19), @@FETCH_STATUS) + N', 指定学生不存在' as result
     end
 end
+```
+
+测试如下：
+
+```sql
 execute sel_course_check 'g0940207'
 /*
 +--------------------------+
@@ -30,26 +123,29 @@ execute sel_course_check 'g0940207'
 +--------------------------+
 | 李红[小]，已经完成了选课 |
 +--------------------------+
-*/
-drop proc if exists show_tea
-create procedure show_tea
-as
-begin
-    declare @teacher_id varchar(20)
-    declare @teacher_name nvarchar(20)
-    declare @teacher_gender nvarchar(2)
-    declare @teacher_prof nvarchar(5)
-    declare stu_cs cursor local scroll for
-    select id, name, gender, prof from teacher
-    open stu_cs
-    fetch next from stu_cs into @teacher_id, @teacher_name, @teacher_gender, @teacher_prof
-    while @@FETCH_STATUS = 0 begin
-        select @teacher_id, @teacher_name as name, @teacher_gender as gender, @teacher_prof as prof
-        select course_id, name from teacher_course
-            left join course on course_id = course.id where teacher_id=@teacher_id
-        fetch next from stu_cs into @teacher_id, @teacher_name, @teacher_gender, @teacher_prof
+*
+```
+
+其中`check_teachers_dept_id.sql`内容如下：
+
+```sql
+create trigger check_teachers_dept_id on teacher
+instead of insert
+as begin
+    if not exists(select id from department where id = (select dept_id from inserted))
+    begin
+        RaisError(N'该部门不存在，禁止插入！', 16, 1)
+    end
+    else
+    begin
+        insert into teacher select * from inserted
     end
 end
+```
+
+测试如下：
+
+```sql
 execute show_tea
 /*
 +-----------+--------+--------+--------+
@@ -216,30 +312,22 @@ execute show_tea
 +------------+--------------------------+
 | dep04_s001 | SQL Server数据库开发技术 |
 +------------+--------------------------+
-*/
-drop trigger if exists check_teachers_dept_id
-create trigger check_teachers_dept_id on teacher
-instead of insert
-as begin
-    if not exists(select id from department where id = (select dept_id from inserted))
-    begin
-        RaisError(N'该部门不存在，禁止插入！', 16, 1)
-    end
-    else
-    begin
-        insert into teacher select * from inserted
-    end
-end
-insert into teacher(id, dept_id) values ('not_exists_id', 'not_exists_dept')
-/* 验证触发器约束 <class 'pymssql.OperationalError'> 50000 该部门不存在，禁止插入！DB-Lib error message 20018, severity 16:
-General SQL Server error: Check messages from the SQL Server
- */
-drop trigger if exists update_class
+*
+```
+
+其中`update_class.sql`内容如下：
+
+```sql
 create trigger update_class on class
 after update
 as begin if update(id) begin
     update student set class_id=(select id from inserted) where class_id=(select id from deleted)
 end end
+```
+
+测试如下：
+
+```sql
 update class set id='test' where id='g09403' 
 select id, class_id from student
 /*
@@ -316,3 +404,9 @@ select id, class_id from student
 | g0940303 |  g09403  |
 +----------+----------+
 */
+```
+
+
+
+## 实验小结
+

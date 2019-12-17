@@ -64,6 +64,7 @@ class SqlServer:
         return cursor.close()
 
     def just_exec(self, stmt):
+        print(stmt)
         self.db.cursor().execute(stmt)
         self.db.commit()
         return self
@@ -91,31 +92,30 @@ class SqlServer:
                                                         else str(column) for column in row]) + ")" for row in table]))
 
     def drop(self, table):
-        print("""
-        if exists(select name from sys.tables where name='%s')
-        drop table %s;
-        """ % (table.Table, table.Table))
         return self.just_exec("""
-        if exists(select name from sys.tables where name='%s')
-        drop table %s;
+if exists(select name from sys.tables where name='%s')
+drop table %s;
         """ % (table.Table, table.Table))
 
     def drop_procedure(self, procedure_name):
-        print("""drop proc if exists %s""" % (procedure_name))
         return self.just_exec("""drop proc if exists %s""" % (procedure_name))
 
+    def drop_trigger(self, trigger_name):
+        return self.just_exec("""drop trigger if exists %s""" % (trigger_name))
+
     def drop_database(self, database_name):
-        print("""
-        if exists(select name from sys.databases where name='%s')
-        drop database %s;
-        """ % (database_name, database_name))
         return self.just_exec("""
-        if exists(select name from sys.databases where name='%s')
-        drop database %s;
+if exists(select name from sys.databases where name='%s')
+drop database %s;
         """ % (database_name, database_name))
 
+    def drop_foreign_key(self, table, foreign_key):
+        return self.just_exec("""
+if exists(select constraint_name from information_schema.key_column_usage where constraint_name='%s')
+alter table %s drop constraint %s
+        """ % (foreign_key, table, foreign_key))
+
     def create(self, table):
-        print(table.CreateStatement)
         return self.just_exec(table.CreateStatement)
 
     def select(self, table):

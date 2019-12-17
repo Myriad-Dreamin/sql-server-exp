@@ -41,7 +41,7 @@ class TeacherTypes(list):
     Type = TableCollection.create_table('TeacherType', Columns)
     CreateStatement = """
     create table teacher_type (
-        id smallint not null,
+        id smallint not null unique,
         t_type nvarchar(15) not null,
         primary key(id, t_type)
     );

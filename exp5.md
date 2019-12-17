@@ -4,8 +4,8 @@ Myriad Dreamin 2017211279 2017211301
 
 ## 实验目的
 
-- 通过实验了解通用数据库应用编程接口ODBC的基本原理和实现机制，熟悉主要的ODBC接口的语法和使用方法；
-- 利用C语言(或其它支持ODBC接口的高级程序设计语言)编程实现简单的数据库应用程序，掌握基于ODBC的数据库访问的基本原理和方法。
+- 通过对完整性规则的定义实现，熟悉了解SQL SERVER中完整性保证的规则和实现方法，加深对数据完整性的理解。
+- 通过对安全性相关内容的定义，熟悉了解SQL SERVER中安全性的内容和实现方法，加深对数据库安全性的理解
 
 ## 实验平台及环境
 
@@ -15,135 +15,396 @@ Myriad Dreamin 2017211279 2017211301
 
 ## 实验内容
 
-+ 本实验内容主要是如何通过数据库接口访问（包括增、删、改）数据库中的数据；
-+ 要求能够通过编写程序或者使用SQL Server工具访问到数据，该实验的重点在于ODBC数据源配置和工具使用。
 
-+ 在Windows控制面板中通过管理工具下的ODBC数据源工具在客户端新建连接到SQL Server服务器的ODBC数据源，测试通过后保存，注意名字应与应用程序中引用的数据源一致。
-
-+ 编译程序并调试通过。
-
-实验过程要求：
-
-
-+ 以SQL语言相关内容为基础，课后查阅、自学ODBC接口有关内容，包括ODBC的体系结构、工作原理、数据访问过程、主要API接口的语法和使用方法等。
-+ 以实验二建立的数据库为基础，编写 C语言(或其它支持ODBC接口的高级程序设计语言) 数据库应用程序，按照如下步骤访问数据库：
-    + ODBC初始化，为ODBC分配环境句柄；
-    + 建立应用程序与ODBC数据源的连接；
-    + 实现数据库应用程序对数据库中表的数据查询、修改、删除、插入等操作。
-    + 结束数据库应用程序。
-
-由于不是程序设计练习，因此针对一张表进行操作，即可完成基本要求。
-
-若程序结构和功能完整，界面友好，可适当增加分数。
-
-实验相关语句要求：
-
-+ 所编写的数据库访问应用程序应使用到以下主要的ODBC API函数：
-    + SQLALLocEnv：初始化ODBC环境，返回环境句柄；
-    + SQLALLocConnect：为连接句柄分配内存并返回连接句柄；
-
-    + SQLConnect：连接一个SQL数据资源；
-
-    + SQLDriverConnect：连接一个SQL数据资源，允许驱动器向用户询问信息；
-    + SQLALLocStmt：为语句句柄分配内存, 并返回语句句柄；
-    + SQLExecDirect：把SQL语句送到数据库服务器，请求执行由SQL语句定义的数据库访问；
-
-    + SQLFetchAdvances：将游标移动到查询结果集的下一行(或第一行)；
-
-    + SQLGetData：按照游标指向的位置，从查询结果集的特定的一列取回数据；
-
-    + SQLFreeStmt：释放与语句句柄相关的资源；
-    + SQLDisconnect：切断连接；
-    + SQLFreeConnect：释放与连接句柄相关的资源；
-
-    + SQLFreeEnv：释放与环境句柄相关的资源。
++ 完整性实验与要求：
+    + 分别定义数据库中各基础表的主、外键，实现实体完整性约束及参照完整性约束；
+    + 向学生表插入具有相同学号的数据，验证其实体完整性约束；
+    + 向学生表中插入一条数据，班级号是学生表的外键，验证参照完整性约束。
+    + 安全性实验内容与要求：
++ 登陆管理
+    + 将Windows账户中的用户LUXQ添加到SQL Sever登陆中，默认数据库为StudentDB；
+    + 创建名为teacher的SQL登陆，密码为123321，默认数据库为master，强制实施密码策略；
+    + 修改SQL登录名teacher的登录密码为789987；
+    + 禁用名为teacher的登陆；
+    + 删除teacher登录名。
++ 用户管理
+    + 创建名为 teacher的登录名，在学生选课数据库中，创建用户professor与teacher登录名对应；
+    + 在学生选课数据库中创建用户professor,将其名称改为professor2；
+    + 删除StudentDB数据库中用户professor2；
+    + 在学生选课数据库中，创建用户professor,其对应登录名为teacher，并将教师表权限授予professor；
+    + 在学生选课数据库中，拒绝用户professor查看教师表权限；
+用Enterprise Manager或Transact_SQL语句完成以上内容。
 
 ## 实验步骤
 
-本程序在windows和linux上均可运行，但在windows上需要解决一定兼容性问题，比如链接`odbccp32.lib`。
+#### 完整性实验的实验方式
 
-打开运行如下：
+使用下列脚本完成本实验：
 
-![1](img/1.png)
+```python
 
-由于记住了密码。按下登出键，如下：
 
-![2](img/2.png)
+from sql_server import SqlServer
+from sql_func import fc, wk
+import pymssql
 
-可以在设置中配置DSN和密码保存路径，注意把路径设为`400`（如果在windows下，则禁用权限继承并只允许自己访问）
+if __name__ == '__main__':
+    database_name = 'student_source'
 
-![3](img/3.png)
+    with SqlServer(database_name, auto_commit=True) as server:
+        
+        # server.drop_foreign_key("class", "fk_header_teacher_on_class")
+        # server.just_exec("""alter table class add constraint fk_header_teacher_on_class foreign key(header_teacher) references teacher(id)""")
+        
+        server.drop_foreign_key("course", "fk_book_id_on_course")
+        server.just_exec("""
+insert into book(id, name) select id, 'auto_generated' from (
+    (select book_id as id from course) except (select id from book)) as ids
+        """)
+        # 省略后续内容，基本相同
+```
 
-进入管理系统后，是第一级管理系统。
+其中`drop_foreign_key`是封装的调用过程。如下：
 
-![4](img/4.png)
+```python
+    def drop_foreign_key(self, table, foreign_key):
+        return self.just_exec("""
+if exists(select constraint_name from information_schema.key_column_usage where constraint_name='%s')
+alter table %s drop constraint %s
+        """ % (foreign_key, table, foreign_key))
+```
 
-以教材信息为例，进入二级菜单后，可以根据需求进入不同的页面。
+为省事，没有使用`prepare`语句防止sql注入。但是可以完成实验需求。
 
-![5](img/5.png)
+#### 完整性实验的具体过程
 
-查询页面如下，右上角有左右箭头用于翻页。并记录了查询消耗时间，总记录条数。
+###### 主键的完整性约束
 
-![6](./img/6.png)
+主键的完整性约束已经在创建表的时候被添加上了，但是也可以在创建表以后使用`alter`语句修改。
+下面是各个表已经被添加的主键：
 
-插入页面如下，单个插入条目允许设置书籍，编号，出版社，作者，价格等。
+###### 外键的完整性约束。
 
-![8](./img/8.png)
+外键的完整性约束对应数据库理论的参照完整性约束.如果需要添加一个外键需要满足以下需求:
 
-允许点击右上角的`+`添加一个条目。
++ 操作表存在并拥有对应表的权限
++ 外键名称实体不存在
++ 外键约束在已有数据上成立
 
-![9](./img/9.png)
+创建`course`表上`book_id`的外键约束：
 
-每个条目都可以单独地删除，或提交。
+先检查如果已经有该约束了，直接`drop`掉。
 
-![10](./img/10.png)
+```sql
+if exists(select constraint_name from information_schema.key_column_usage where constraint_name='fk_book_id_on_course')
+alter table course drop constraint fk_book_id_on_course
+```
 
-如果填入的信息发生错误，目前是将错误直接返回，弹出消息提示框并提示。
+为了防止添加外键约束失败，创建无用的填充条目。
 
-![11](./img/11.png)
+```sql
+insert into book(id, name) select id, 'auto_generated' from (
+    (select book_id as id from course) except (select id from book)) as ids
+```
 
-现在尝试插入一条信息
+为`course`表上`book_id`创建外键约束。
 
-![12](./img/12.png)
+```sql        
+alter table course add constraint fk_book_id_on_course foreign key(book_id) references book(id)
+```
 
-在查询界面中可以看到刚刚插入的条目。
+创建`class_course`表上`class_id`的外键约束：
 
-![15](./img/15.png)
+先检查如果已经有该约束了，直接`drop`掉。
 
-来看更新界面。
+```sql
+if exists(select constraint_name from information_schema.key_column_usage where constraint_name='fk_class_id_on_class_course')
+alter table class_course drop constraint fk_class_id_on_class_course
+```
 
-![16](./img/16.png)
+为了防止添加外键约束失败，创建无用的填充条目。
 
-点击对应框，可以开启或关闭对应的输入。点击右上角的过滤，可以查看被筛选到的数据，防止更新发生差错。
+```sql
+insert into class(id, dept_id, address) select id, 'dep_05', 'auto_generated' from (
+    (select class_id as id from class_course) except (select id from class)) as ids
+```
 
-![17](./img/17.png)
+为`course`表上`class_id`创建外键约束。
 
-不同的查询条件之间是以`and`形式连接的。
+```sql
+alter table class_course add constraint fk_class_id_on_class_course foreign key(class_id) references class(id)
+```
 
-![18](./img/18.png)
+创建`class_course`表上`course_id`的外键约束：
 
-现在更新被筛选到的信息，将其的定价更新为15元。
 
-![19](./img/19.png)
+先检查如果已经有该约束了，直接`drop`掉。
 
-更新成功。
+```sql
+if exists(select constraint_name from information_schema.key_column_usage where constraint_name='fk_course_id_on_class_course')
+alter table class_course drop constraint fk_course_id_on_class_course
+```
 
-![20](./img/20.png)
+为了防止添加外键约束失败，创建无用的填充条目。
 
-删除界面与更新界面基本一样，就不详细介绍了。
+```sql
+insert into course(id, book_id, name) select id, 'dep01_s001_01', 'auto_generated' from (
+    (select course_id as id from class_course) except (select id from course)) as ids
+```
 
-![21](./img/21.png)
+为`class_course`表上`course_id`创建外键约束。
 
-本实验使用的是第三方的javascript odbc库，底层仍然使用的是c语言的odbc接口。这个第三方库有一些小bug，但稍微跟踪一下，就能修复。
+```sql
+alter table class_course add constraint fk_course_id_on_class_course foreign key(course_id) references course(id)
+```
 
-下面介绍一个已知并被我修复的bug。
+创建`student`表上`class_id`的外键约束：
 
-![13](./img/13.png)
+先检查如果已经有该约束了，直接`drop`掉。
 
-将690行代码修改如下，可以修复js odbc绑定sql字段丢失浮点数精度的问题。
+```sql
+if exists(select constraint_name from information_schema.key_column_usage where constraint_name='fk_class_id_on_student')
+alter table student drop constraint fk_class_id_on_student
+```
 
-![14](./img/14.png)
+为了防止添加外键约束失败，创建无用的填充条目。
+
+```sql
+insert into class(id, dept_id, address) select id, 'dep_05', 'auto_generated' from (
+    (select class_id as id from student) except (select id from class)) as ids
+```
+
+为`student`表上`class_id`创建外键约束。
+
+```sql
+alter table student add constraint fk_class_id_on_student foreign key(class_id) references class(id)
+```
+
+创建`student_course`表上`course_id`的外键约束：
+
+先检查如果已经有该约束了，直接`drop`掉。
+
+```sql
+if exists(select constraint_name from information_schema.key_column_usage where constraint_name='fk_course_id_on_student_course')
+alter table student_course drop constraint fk_course_id_on_student_course
+```
+
+为`student_course`表上`course_id`创建外键约束。
+
+```sql
+alter table student_course add constraint fk_course_id_on_student_course foreign key(course_id) references course(id)
+```
+
+创建`student_course`表上`student_id`的外键约束：
+
+先检查如果已经有该约束了，直接`drop`掉。
+
+```sql
+if exists(select constraint_name from information_schema.key_column_usage where constraint_name='fk_student_id_on_student_course')
+alter table student_course drop constraint fk_student_id_on_student_course
+```
+
+为`student_course`表上`student_id`创建外键约束。
+
+```sql
+alter table student_course add constraint fk_student_id_on_student_course foreign key(student_id) references student(id)
+```
+
+创建`teacher`表上`dept_id`的外键约束：
+
+先检查如果已经有该约束了，直接`drop`掉。
+
+```sql
+if exists(select constraint_name from information_schema.key_column_usage where constraint_name='fk_dept_id_on_teacher')
+alter table teacher drop constraint fk_dept_id_on_teacher
+```
+
+为`teacher`表上`dept_id`创建外键约束。
+
+```sql
+alter table teacher add constraint fk_dept_id_on_teacher foreign key(dept_id) references department(id)
+```
+
+创建`class`表上`dept_id`的外键约束：
+
+先检查如果已经有该约束了，直接`drop`掉。
+
+```sql
+if exists(select constraint_name from information_schema.key_column_usage where constraint_name='fk_dept_id_on_class')
+alter table class drop constraint fk_dept_id_on_class
+```
+
+为`class`表上`dept_id`创建外键约束。
+
+```sql
+alter table class add constraint fk_dept_id_on_class foreign key(dept_id) references department(id)
+```
+
+创建`teacher`表上`cat`的外键约束：
+
+先检查如果已经有该约束了，直接`drop`掉。
+
+```sql
+if exists(select constraint_name from information_schema.key_column_usage where constraint_name='fk_cat_on_teacher')
+alter table teacher drop constraint fk_cat_on_teacher
+```
+
+为`teacher`表上`cat`创建外键约束。
+
+```sql
+alter table teacher add constraint fk_cat_on_teacher foreign key(cat) references teacher_type(id)
+```
+
+创建`teacher_course`表上`teacher_id`的外键约束：
+
+先检查如果已经有该约束了，直接`drop`掉。
+
+```sql
+if exists(select constraint_name from information_schema.key_column_usage where constraint_name='fk_teacher_id_on_teacher_course')
+alter table teacher_course drop constraint fk_teacher_id_on_teacher_course
+```
+
+为`teacher_course`表上`teacher_id`创建外键约束。
+
+```sql
+alter table teacher_course add constraint fk_teacher_id_on_teacher_course foreign key(teacher_id) references teacher(id)
+```
+
+创建`teacher_course`表上`course_id`的外键约束：
+
+先检查如果已经有该约束了，直接`drop`掉。
+
+```sql
+if exists(select constraint_name from information_schema.key_column_usage where constraint_name='fk_course_id_on_teacher_course')
+alter table teacher_course drop constraint fk_course_id_on_teacher_course
+```
+
+为`teacher_course`表上`course_id`创建外键约束。
+
+```sql
+alter table teacher_course add constraint fk_course_id_on_teacher_course foreign key(course_id) references course(id)
+```
+
+创建`teacher_course`表上`class_id`的外键约束：
+
+先检查如果已经有该约束了，直接`drop`掉。
+
+```sql
+if exists(select constraint_name from information_schema.key_column_usage where constraint_name='fk_class_id_on_teacher_course')
+alter table teacher_course drop constraint fk_class_id_on_teacher_course
+```
+
+为`teacher_course`表上`class_id`创建外键约束。
+
+```sql
+alter table teacher_course add constraint fk_class_id_on_teacher_course foreign key(class_id) references class(id)
+```
+
+创建`teacher_course`表上`book_id`的外键约束：
+
+先检查如果已经有该约束了，直接`drop`掉。
+
+```sql
+if exists(select constraint_name from information_schema.key_column_usage where constraint_name='fk_book_id_on_teacher_course')
+alter table teacher_course drop constraint fk_book_id_on_teacher_course
+```
+
+为`teacher_course`表上`book_id`创建外键约束。
+
+```sql
+alter table teacher_course add constraint fk_book_id_on_teacher_course foreign key(book_id) references book(id)
+```
+
+通过一个简单的插入语句验证已经添加的实体完整性约束。
+
+```sql
+insert into student(id) values ('g0940201')
+/* 验证实体完整性约束 <class 'pymssql.IntegrityError'> (2627, b"Violation of PRIMARY KEY constraint 'PK__student__3213E83F4544E73F'. Cannot insert duplicate key in object 'dbo.student'. The duplicate key value is (g0940201).DB-Lib error message 20018, severity 14:\nGeneral SQL Server error: Check messages from the SQL Server\n") */
+```
+
+通过一个简单的插入语句验证已经添加的参照实体完整性约束。
+
+
+```sql
+insert into student(id, class_id) values ('not_exists_id', 'not_exists_class')
+/* 验证参照完整性约束 <class 'pymssql.IntegrityError'> (547, b'The INSERT statement conflicted with the FOREIGN KEY constraint "fk_class_id_on_student". The conflict occurred in database "student_source", table "dbo.class", column \'id\'.DB-Lib error message 20018, severity 16:\nGeneral SQL Server error: Check messages from the SQL Server\n') */
+```
+
+###### 安全性实验
+
+创建名为`teacher`的SQL登陆，密码为`123321`，默认数据库为`master`，强制实施密码策略。因为`123321`的密码强度过低，无法通过数据库检查，所以改为`123321aA`，实际不影响实验正确性。
+
+```sql
+create login teacher with password=N'123321aA', default_database=student_source
+```
+
+修改SQL登录名`teacher`的登录密码为`789987`。
+
+```sql
+alter login teacher with password=N'789987aA'
+```
+
+禁用名为`teacher`的登陆
+
+```sql
+alter login teacher disable
+```
+
+删除`teacher`登录名
+
+```sql
+drop login teacher
+```
+
+重新创建`teacher`登录用户。
+
+```sql
+create login teacher with password=N'123321aA', default_database=student_source
+```
+
+创建名为 `teacher`的登录名，在学生选课数据库中，创建用户`professor`与`teacher`登录名对应。
+
+```sql
+create user professor for login teacher with default_schema=dbo
+```
+
+在学生选课数据库中创建用户`professor`,将其名称改为`professor2`
+
+```sql
+alter user professor with name=professor2
+```
+
+删除`StudentDB`数据库中用户`professor2`
+
+```sql
+drop user professor2
+```
+
+在学生选课数据库中，重新创建用户`professor`与`teacher`登录名对应。
+
+```sql
+create user professor for login teacher with default_schema=dbo
+```
+
+在学生选课数据库中，创建用户`professor`,其对应登录名为`teacher`，并将教师表权限授予`professor`
+
+```sql
+grant all on teacher to professor
+```
+
+在学生选课数据库中，拒绝用户`professor`查看教师表权限
+
+```sql
+revoke select on teacher to professor
+```
+
+进行实验后的清除用户处理。
+
+```sql
+drop user professor
+drop login teacher
+```
+
 
 ## 实验小结
 
-odbc是近10年前的技术，已经基本没人维护了。这次实验的主要时间耗费在寻找合适的odbc第三方库，并且大部分第三方库都不可靠。不过经过一定时间的努力，最终还是成功在linux上完成了此次实验。
