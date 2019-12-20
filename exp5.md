@@ -53,9 +53,6 @@ if __name__ == '__main__':
 
     with SqlServer(database_name, auto_commit=True) as server:
         
-        # server.drop_foreign_key("class", "fk_header_teacher_on_class")
-        # server.just_exec("""alter table class add constraint fk_header_teacher_on_class foreign key(header_teacher) references teacher(id)""")
-        
         server.drop_foreign_key("course", "fk_book_id_on_course")
         server.just_exec("""
 insert into book(id, name) select id, 'auto_generated' from (
@@ -407,4 +404,6 @@ drop login teacher
 
 
 ## 实验小结
+
+在本次实验中学会了数据库用户的管理。同时认识到了外键的限制之严格。当我们想要为一列加上外键时，需要对其做额外的处理。这时候有两种解决办法，一种是直接添加`NULL`因为外键不对`NULL`检查，但是这样有可能埋下祸端。在数据库中，最后的手段才是`NULL`。拒绝`NULL`可能避免一些奇怪的错误和逻辑错误。另外一种办法是，强行增加一条无用的行再在外键列中填入对应的索引值。这也不是好的办法，但终归解决了外键的问题。
 
