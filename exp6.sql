@@ -23,13 +23,13 @@ begin
         select N'Fetch状态: ' + convert(varchar(19), @@FETCH_STATUS) + N', 指定学生不存在' as result
     end
 end
-execute sel_course_check 'g0940207'
+execute sel_course_check 'g0940211'
 /*
-+--------------------------+
-|          result          |
-+--------------------------+
-| 李红[小]，已经完成了选课 |
-+--------------------------+
++----------------+
+|     result     |
++----------------+
+| 赵凯，还需选课 |
++----------------+
 */
 drop proc if exists show_tea
 create procedure show_tea
@@ -215,6 +215,76 @@ execute show_tea
 | course_id  |           name           |
 +------------+--------------------------+
 | dep04_s001 | SQL Server数据库开发技术 |
++------------+--------------------------+
+*/
+alter procedure show_tea
+as
+begin
+    declare @teacher_id varchar(20)
+    declare @teacher_name nvarchar(20)
+    declare @teacher_gender nvarchar(2)
+    declare @teacher_prof nvarchar(5)
+    declare stu_cs cursor local scroll for
+    select id, name, gender, prof from teacher where prof=N'副教授'
+    open stu_cs
+    fetch next from stu_cs into @teacher_id, @teacher_name, @teacher_gender, @teacher_prof
+    while @@FETCH_STATUS = 0 begin
+        select @teacher_id, @teacher_name as name, @teacher_gender as gender, @teacher_prof as prof
+        select course_id, name from teacher_course
+            left join course on course_id = course.id where teacher_id=@teacher_id
+        fetch next from stu_cs into @teacher_id, @teacher_name, @teacher_gender, @teacher_prof
+    end
+end
+execute show_tea
+/*
++-----------+--------+--------+--------+
+|           |  name  | gender |  prof  |
++-----------+--------+--------+--------+
+| dep01_001 | 王敬远 |   男   | 副教授 |
++-----------+--------+--------+--------+
++------------+----------------+
+| course_id  |      name      |
++------------+----------------+
+| dep01_s002 | 网络技术与实践 |
+| dep01_s002 | 网络技术与实践 |
++------------+----------------+
++-----------+------+--------+--------+
+|           | name | gender |  prof  |
++-----------+------+--------+--------+
+| dep01_002 | 马丽 |   女   | 副教授 |
++-----------+------+--------+--------+
++-----------+------+
+| course_id | name |
++-----------+------+
++-----------+------+
++-----------+------+--------+--------+
+|           | name | gender |  prof  |
++-----------+------+--------+--------+
+| dep01_003 | 包维 |   女   | 副教授 |
++-----------+------+--------+--------+
++-----------+------+
+| course_id | name |
++-----------+------+
++-----------+------+
++-----------+--------+--------+--------+
+|           |  name  | gender |  prof  |
++-----------+--------+--------+--------+
+| dep03_001 | 董一平 |   男   | 副教授 |
++-----------+--------+--------+--------+
++-----------+------+
+| course_id | name |
++-----------+------+
++-----------+------+
++-----------+------+--------+--------+
+|           | name | gender |  prof  |
++-----------+------+--------+--------+
+| dep04_001 | 纪云 |   男   | 副教授 |
++-----------+------+--------+--------+
++------------+--------------------------+
+| course_id  |           name           |
++------------+--------------------------+
+| dep04_s001 | SQL Server数据库开发技术 |
+| dep04_s005 |         网页设计         |
 +------------+--------------------------+
 */
 drop trigger if exists check_teachers_dept_id

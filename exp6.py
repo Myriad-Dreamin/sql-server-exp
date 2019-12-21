@@ -10,22 +10,26 @@ if __name__ == '__main__':
     with SqlServer(database_name, auto_commit=True) as server:
         q = wk(server)
         server.drop_procedure("sel_course_check")
-        with open('sel_course_check.sql') as f:
+        with open('sel_course_check.sql', encoding='utf-8') as f:
             proc = f.read()
         server.just_exec(proc)
-        q("""execute sel_course_check 'g0940207'""")
+        q("""execute sel_course_check 'g0940211'""")
 
         server.drop_procedure("show_tea")
-        with open('show_tea.sql') as f:
+        with open('show_tea.sql', encoding='utf-8') as f:
             proc = f.read()
         server.just_exec(proc)
         q("""execute show_tea""")
 
-        # todo 修改 show_tea 用于查询副教授职称的姓，性别，职称和授课名
+        with open('alter_show_tea.sql', encoding='utf-8') as f:
+            proc = f.read()
+        server.just_exec(proc)
+        q("""execute show_tea""")
+
         # 删除存储过程
 
         server.drop_trigger("check_teachers_dept_id")
-        with open('check_teachers_dept_id.sql') as f:
+        with open('check_teachers_dept_id.sql', encoding='utf-8') as f:
             trigger = f.read()
         server.just_exec(trigger)
         # q("""execute show_tea""")
@@ -38,7 +42,7 @@ if __name__ == '__main__':
 
 
         server.drop_trigger("update_class")
-        with open('update_class.sql') as f:
+        with open('update_class.sql', encoding='utf-8') as f:
             trigger = f.read()
         server.just_exec(trigger)
 
@@ -49,5 +53,3 @@ if __name__ == '__main__':
         server.just_exec("""update class set id='g09403' where id='test' """)
 
         q("""select id, class_id from student""")
-
-    

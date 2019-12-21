@@ -1,4 +1,4 @@
-## 数据库实验第三次实验
+## 数据库实验第五次实验 - 数据库完整性与安全性实验
 
 Myriad Dreamin 2017211279 2017211301
 
@@ -312,22 +312,36 @@ alter table teacher_course drop constraint fk_book_id_on_teacher_course
 alter table teacher_course add constraint fk_book_id_on_teacher_course foreign key(book_id) references book(id)
 ```
 
+###### 验证实体完整性约束
+
 通过一个简单的插入语句验证已经添加的实体完整性约束。
 
 ```sql
 insert into student(id) values ('g0940201')
-/* 验证实体完整性约束 <class 'pymssql.IntegrityError'> (2627, b"Violation of PRIMARY KEY constraint 'PK__student__3213E83F4544E73F'. Cannot insert duplicate key in object 'dbo.student'. The duplicate key value is (g0940201).DB-Lib error message 20018, severity 14:\nGeneral SQL Server error: Check messages from the SQL Server\n") */
 ```
 
-通过一个简单的插入语句验证已经添加的参照实体完整性约束。
+python返回错误：
+
+```python
+<class 'pymssql.IntegrityError'> (2627, b"Violation of PRIMARY KEY constraint 'PK__student__3213E83F4544E73F'. Cannot insert duplicate key in object 'dbo.student'. The duplicate key value is (g0940201).DB-Lib error message 20018, severity 14:\nGeneral SQL Server error: Check messages from the SQL Server\n")
+```
+
+###### 验证参照完整性约束
+
+通过一个简单的插入语句验证已经添加的参照完整性约束。
 
 
 ```sql
 insert into student(id, class_id) values ('not_exists_id', 'not_exists_class')
-/* 验证参照完整性约束 <class 'pymssql.IntegrityError'> (547, b'The INSERT statement conflicted with the FOREIGN KEY constraint "fk_class_id_on_student". The conflict occurred in database "student_source", table "dbo.class", column \'id\'.DB-Lib error message 20018, severity 16:\nGeneral SQL Server error: Check messages from the SQL Server\n') */
 ```
 
-###### 安全性实验
+python返回错误：
+
+```python
+<class 'pymssql.IntegrityError'> (547, b'The INSERT statement conflicted with the FOREIGN KEY constraint "fk_class_id_on_student". The conflict occurred in database "student_source", table "dbo.class", column \'id\'.DB-Lib error message 20018, severity 16:\nGeneral SQL Server error: Check messages from the SQL Server\n')
+```
+
+#### 安全性实验
 
 创建名为`teacher`的SQL登陆，密码为`123321`，默认数据库为`master`，强制实施密码策略。因为`123321`的密码强度过低，无法通过数据库检查，所以改为`123321aA`，实际不影响实验正确性。
 
@@ -405,5 +419,12 @@ drop login teacher
 
 ## 实验小结
 
-在本次实验中学会了数据库用户的管理。同时认识到了外键的限制之严格。当我们想要为一列加上外键时，需要对其做额外的处理。这时候有两种解决办法，一种是直接添加`NULL`因为外键不对`NULL`检查，但是这样有可能埋下祸端。在数据库中，最后的手段才是`NULL`。拒绝`NULL`可能避免一些奇怪的错误和逻辑错误。另外一种办法是，强行增加一条无用的行再在外键列中填入对应的索引值。这也不是好的办法，但终归解决了外键的问题。
+在本次实验中学会了数据库用户的管理。同时认识到了外键的限制之严格。
 
+当我们想要为一列加上外键时，需要对其做额外的处理。这时候有两种解决办法，一种是直接添加`NULL`因为外键不对`NULL`检查。另外一种办法是，强行增加一条无用的行再在外键列中填入对应的索引值。
+
+使用`NULL`值有可能埋下祸端。拒绝`NULL`可能避免一些奇怪的错误和逻辑错误，所以本实验避免FK错误时采用了第二种方式。这也不是好的办法，但终归解决了外键的问题。
+
+本次实验的主要收获是上手编写了`TSQL`增加了编写语句的熟练度。
+
+我对本次实验给出的建议是，希望能够更合理地编写数据，适当减少一些合理外键产生冲突。在编写外键时，我发现一共十几个外键有近一半都产生了冲突。但也可以适当保留一到两个，让学生能够获得发现并解决外键冲突的经验。

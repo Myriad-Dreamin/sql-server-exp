@@ -28,31 +28,40 @@ Myriad Dreamin 2017211279 2017211301
 		
 		+ 测试
 	+ 创建UPDATEClass触发器，当对班级信息表主键"班级号"进行修改时，应对学生表中相应的"班级号"也进行修改。
-+ 定义触发器，向学生表插入一条记录时，将所有学生的学号值加1，并对其进行测试。
-  
-      
+	+ 定义触发器，向学生表插入一条记录时，将所有学生的学号值加1，并对其进行测试。
+	
+	​    
 
 ## 实验步骤
+
+#### 编写实验脚本
 
 完整的实验脚本如下：
 
 ```python
     with SqlServer(database_name, auto_commit=True) as server:
         q = wk(server)
-		server.drop_procedure("sel_course_check")
-        with open('sel_course_check.sql') as f:
+        server.drop_procedure("sel_course_check")
+        with open('sel_course_check.sql', encoding='utf-8') as f:
             proc = f.read()
         server.just_exec(proc)
-        q("""execute sel_course_check 'g0940207'""")
+        q("""execute sel_course_check 'g0940211'""")
 
         server.drop_procedure("show_tea")
-        with open('show_tea.sql') as f:
+        with open('show_tea.sql', encoding='utf-8') as f:
             proc = f.read()
         server.just_exec(proc)
         q("""execute show_tea""")
 
+        with open('alter_show_tea.sql', encoding='utf-8') as f:
+            proc = f.read()
+        server.just_exec(proc)
+        q("""execute show_tea""")
+
+        # 删除存储过程
+
         server.drop_trigger("check_teachers_dept_id")
-        with open('check_teachers_dept_id.sql') as f:
+        with open('check_teachers_dept_id.sql', encoding='utf-8') as f:
             trigger = f.read()
         server.just_exec(trigger)
         # q("""execute show_tea""")
@@ -65,7 +74,7 @@ Myriad Dreamin 2017211279 2017211301
 
 
         server.drop_trigger("update_class")
-        with open('update_class.sql') as f:
+        with open('update_class.sql', encoding='utf-8') as f:
             trigger = f.read()
         server.just_exec(trigger)
 
@@ -78,7 +87,15 @@ Myriad Dreamin 2017211279 2017211301
         q("""select id, class_id from student""")
 ```
 
-其中`sql_course_check.sql`内容如下：
+###### 定义存储过程，查询“学生”表中学号=g0940211的学生的姓名和已选课程门数，若选课门数在3门以上，输出“XX，已经完成了选课”；否则输出“XX，还需选课”。 
+
+先删除可能存在的过程名称
+
+```sql
+drop proc if exists sel_course_check
+```
+
+`sql_course_check.sql`内容如下：
 
 ```sql
 create procedure sel_course_check
@@ -117,36 +134,49 @@ end
 测试如下：
 
 ```sql
-execute sel_course_check 'g0940207'
+execute sel_course_check 'g0940211'
 /*
-+--------------------------+
-|          result          |
-+--------------------------+
-| 李红[小]，已经完成了选课 |
-+--------------------------+
-*
++----------------+
+|     result     |
++----------------+
+| 赵凯，还需选课 |
++----------------+
+*/
 ```
 
-其中`check_teachers_dept_id.sql`内容如下：
+![1576908471053](C:\Users\Kamiyoru\AppData\Roaming\Typora\typora-user-images\1576908471053.png)
+
+###### 定义存储过程，用于查询“学生选课”数据库中所有教师的姓名、性别、职称和所授课的课程名称
+先删除可能存在的过程名称
 
 ```sql
-create trigger check_teachers_dept_id on teacher
-instead of insert
-as begin
-    if not exists(select id from department where id = (select dept_id from inserted))
-    begin
-        RaisError(N'该部门不存在，禁止插入！', 16, 1)
-    end
-    else
-    begin
-        insert into teacher select * from inserted
+drop proc if exists show_tea
+```
+
+`show_tea.sql`的内容如下：
+
+```sql
+create procedure show_tea
+as
+begin
+    declare @teacher_id varchar(20)
+    declare @teacher_name nvarchar(20)
+    declare @teacher_gender nvarchar(2)
+    declare @teacher_prof nvarchar(5)
+    declare stu_cs cursor local scroll for
+    select id, name, gender, prof from teacher
+    open stu_cs
+    fetch next from stu_cs into @teacher_id, @teacher_name, @teacher_gender, @teacher_prof
+    while @@FETCH_STATUS = 0 begin
+        select @teacher_id, @teacher_name as name, @teacher_gender as gender, @teacher_prof as prof
+        select course_id, name from teacher_course
+            left join course on course_id = course.id where teacher_id=@teacher_id
+        fetch next from stu_cs into @teacher_id, @teacher_name, @teacher_gender, @teacher_prof
     end
 end
 ```
 
-其中`instead of`使用后将完全替代`insert`的`functional`，因此才会在这里将`inserted`表的行列全部插入到teacher表中
-
-测试如下：
+调用过程
 
 ```sql
 execute show_tea
@@ -315,10 +345,148 @@ execute show_tea
 +------------+--------------------------+
 | dep04_s001 | SQL Server数据库开发技术 |
 +------------+--------------------------+
-*
+*/
 ```
 
-其中`update_class.sql`内容如下：
+###### 修改存储过程dbo.ShowTeaCourse,用于查询“学生选课”数据库中所有副教授职称的教师的姓名、性别、职称和所授课的课程名称。
+
+`alter_show_tea.sql`内容如下：
+
+```sql
+alter procedure show_tea
+as
+begin
+    declare @teacher_id varchar(20)
+    declare @teacher_name nvarchar(20)
+    declare @teacher_gender nvarchar(2)
+    declare @teacher_prof nvarchar(5)
+    declare stu_cs cursor local scroll for
+    select id, name, gender, prof from teacher where prof=N'副教授'
+    open stu_cs
+    fetch next from stu_cs into @teacher_id, @teacher_name, @teacher_gender, @teacher_prof
+    while @@FETCH_STATUS = 0 begin
+        select @teacher_id, @teacher_name as name, @teacher_gender as gender, @teacher_prof as prof
+        select course_id, name from teacher_course
+            left join course on course_id = course.id where teacher_id=@teacher_id
+        fetch next from stu_cs into @teacher_id, @teacher_name, @teacher_gender, @teacher_prof
+    end
+end
+```
+
+与`show_tea`不同的地方周，创建游标的时候，添加了一个条件`where prof=N'副教授'`
+
+调用结果如下：
+
+```sql
+execute show_tea
+/*
++-----------+--------+--------+--------+
+|           |  name  | gender |  prof  |
++-----------+--------+--------+--------+
+| dep01_001 | 王敬远 |   男   | 副教授 |
++-----------+--------+--------+--------+
++------------+----------------+
+| course_id  |      name      |
++------------+----------------+
+| dep01_s002 | 网络技术与实践 |
+| dep01_s002 | 网络技术与实践 |
++------------+----------------+
++-----------+------+--------+--------+
+|           | name | gender |  prof  |
++-----------+------+--------+--------+
+| dep01_002 | 马丽 |   女   | 副教授 |
++-----------+------+--------+--------+
++-----------+------+
+| course_id | name |
++-----------+------+
++-----------+------+
++-----------+------+--------+--------+
+|           | name | gender |  prof  |
++-----------+------+--------+--------+
+| dep01_003 | 包维 |   女   | 副教授 |
++-----------+------+--------+--------+
++-----------+------+
+| course_id | name |
++-----------+------+
++-----------+------+
++-----------+--------+--------+--------+
+|           |  name  | gender |  prof  |
++-----------+--------+--------+--------+
+| dep03_001 | 董一平 |   男   | 副教授 |
++-----------+--------+--------+--------+
++-----------+------+
+| course_id | name |
++-----------+------+
++-----------+------+
++-----------+------+--------+--------+
+|           | name | gender |  prof  |
++-----------+------+--------+--------+
+| dep04_001 | 纪云 |   男   | 副教授 |
++-----------+------+--------+--------+
++------------+--------------------------+
+| course_id  |           name           |
++------------+--------------------------+
+| dep04_s001 | SQL Server数据库开发技术 |
+| dep04_s005 |         网页设计         |
++------------+--------------------------+
+*/
+```
+
+###### 删除该存储过程。
+
+```sql
+drop proc if exists show_tea
+```
+
+###### 创建INSERT触发器，如果向教师表中插入记录时，检查该记录的院系编号在表中是否存在。如果不存在，则不允许插入。
+
+先drop掉可能已经存在的触发器
+
+```sql
+drop trigger if exists check_teachers_dept_id
+```
+
+`check_teachers_dept_id.sql`内容如下：
+
+```sql
+create trigger check_teachers_dept_id on teacher
+instead of insert
+as begin
+    if not exists(select id from department where id = (select dept_id from inserted))
+    begin
+        RaisError(N'该部门不存在，禁止插入！', 16, 1)
+    end
+    else
+    begin
+        insert into teacher select * from inserted
+    end
+end
+```
+
+其中`instead of`使用后将完全替代`insert`的`functional`，因此才会在这里将`inserted`表的行列全部插入到teacher表中
+
+测试如下：
+
+```sql
+insert into teacher(id, dept_id) values ('not_exists_id', 'not_exists_dept')
+```
+
+python返回错误：
+
+```python
+<class 'pymssql.OperationalError'> 50000 该部门不存在，禁止插入！DB-Lib error message 20018, severity 16:
+General SQL Server error: Check messages from the SQL Server
+```
+
+###### 创建UPDATEClass触发器，当对班级信息表主键"班级号"进行修改时，应对学生表中相应的"班级号"也进行修改。
+
+先drop掉可能已经存在的触发器
+
+```sql
+drop trigger if exists update_class
+```
+
+`update_class.sql`内容如下：
 
 ```sql
 create trigger update_class on class
@@ -411,8 +579,10 @@ select id, class_id from student
 */
 ```
 
-
-
 ## 实验小结
 
-学会了触发器和调用过程的编写。调用过程和触发器在理论上减少了通信成本，可以有小幅度的优化。
+因为在操作数据库上我还是很有经验的，所以在实验中并没有遇到什么问题。
+
+此次实验中我复习了触发器和调用过程的编写。调用过程和触发器在理论上减少了通信成本，可以有小幅度的优化。
+
+至此，所有数据库实验均已做完，我对这六个实验给出的总体意见是，可以考虑综合多种关系型数据库，提炼一个大致的实验要求，使得实验不拘泥于`sql server`一个数据库产品。也可以考虑新置一到两个额外的实验用于让同学们接触和熟练`no sql/new sql`产品的理念和具体上手操作。
